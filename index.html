@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Franpañol Duel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.js" defer></script>
+<style>
+:root{
+  --panel:rgba(15,23,42,.84); --line:rgba(255,255,255,.12); --text:#f1f5f9; --muted:#94a3b8;
+  --gold:#f59e0b; --blue:#3b82f6; --red:#ef4444; --green:#22c55e; --purple:#8b5cf6;
+  --ok:#4ade80; --mid:#fbbf24; --bad:#f87171;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{background:#0d1222}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);min-height:100vh;
+  background:linear-gradient(160deg,#090d16 0%,#111827 45%,#1e1b4b 100%);-webkit-tap-highlight-color:transparent}
+a{color:#fcd34d}
+h2,h3{font-family:Fredoka,Inter,sans-serif;margin:.2em 0 .4em}
+h2{font-size:clamp(22px,3.2vw,30px)} h3{font-size:20px}
+.hidden{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 48px}
+.top{max-width:1180px;margin:12px auto 16px;padding:0 16px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px}
+.brand{display:flex;gap:10px;align-items:center}
+.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#ef4444,#2563eb);display:grid;place-items:center;font-size:26px;animation:float 3s ease-in-out infinite}
+.title{font-family:Fredoka,sans-serif;font-size:22px;margin:0;font-weight:700;background:linear-gradient(90deg,#60a5fa,#fcd34d,#f87171);-webkit-background-clip:text;background-clip:text;color:transparent;text-transform:uppercase;letter-spacing:.5px}
+.subt{font-size:11px;color:var(--muted);font-weight:700}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:16px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.narrow{max-width:480px;margin-left:auto;margin-right:auto}
+.row{display:flex;align-items:center;gap:8px}
+.wrap-row{flex-wrap:wrap}
+.between{justify-content:space-between}
+.center{text-align:center;justify-content:center}
+.full{width:100%}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+.btn{font:inherit;font-weight:800;font-size:14px;border:1px solid var(--line);background:#1e293b;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center;transition:transform .1s,filter .15s;text-decoration:none}
+.btn:hover{filter:brightness(1.18)} .btn:active{transform:scale(.97)} .btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#111;border:0}
+.btn.vivid{background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;border:0}
+.btn.blue{background:linear-gradient(135deg,#2563eb,#0284c7);color:#fff;border:0}
+.btn.ghost{background:transparent}
+.btn.danger{background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.4)}
+.btn.big{padding:15px 22px;font-size:18px;font-family:Fredoka,sans-serif;border-radius:16px;letter-spacing:.3px}
+.btn.sm{padding:6px 10px;font-size:12.5px;border-radius:10px}
+.lbl{display:block;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 6px}
+input,select,textarea{font:inherit;width:100%;background:#0f172a;border:1px solid #334155;color:var(--text);border-radius:12px;padding:10px 12px;font-size:15px}
+textarea{min-height:170px;resize:vertical;line-height:1.55;font-size:14px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+.check{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:600;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--gold)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.gen{display:grid;grid-template-columns:1fr 170px auto;gap:8px}
+@media(max-width:640px){.gen{grid-template-columns:1fr}}
+.hero{display:flex;gap:18px;align-items:center;border-color:rgba(245,158,11,.3)}
+.mascot{width:88px;height:88px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:48px;background:#0f172a;box-shadow:0 0 0 4px #f59e0b,0 0 30px rgba(139,92,246,.6);animation:float 3s ease-in-out infinite}
+.mascot.sm{width:64px;height:64px;font-size:34px;margin:0 auto 6px}
+@media(max-width:600px){.hero{flex-direction:column;text-align:center}}
+.kicker{font-size:12px;font-weight:900;color:var(--gold);text-transform:uppercase;letter-spacing:.08em}
+.warn{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);color:#fde68a;border-radius:14px;padding:12px 14px;margin:0 0 16px;font-weight:600;font-size:14px}
+.err-box{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);color:#fecaca;border-radius:14px;padding:12px 14px;font-weight:600;font-size:14px}
+.ok-box{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.4);color:#bbf7d0;border-radius:14px;padding:12px 14px;font-weight:600;font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:11.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);background:#1e293b}
+.pill.gold{background:rgba(245,158,11,.18);color:#fcd34d;border-color:rgba(245,158,11,.45)}
+.pill.fr{background:rgba(37,99,235,.22);color:#bfdbfe;border-color:rgba(59,130,246,.5)}
+.pill.es{background:rgba(220,38,38,.22);color:#fecaca;border-color:rgba(239,68,68,.5)}
+.pill.on{color:#bbf7d0;border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.12)}
+.pill.off{color:#fde68a;border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.12)}
+.pill.dead{color:#fecaca;border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.12)}
+.phrase{font-family:Fredoka,sans-serif;font-weight:600;font-size:clamp(24px,4.2vw,44px);text-align:center;line-height:1.3;margin:18px 6px 14px;overflow-wrap:anywhere}
+.tr{text-align:center;color:#fde68a;font-style:italic;font-weight:700;background:rgba(2,6,23,.6);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:8px 14px;max-width:620px;margin:10px auto 0}
+.char{display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:16px;margin-top:14px;background:linear-gradient(90deg,rgba(88,28,135,.55),rgba(131,24,67,.45),rgba(15,23,42,.6));border:1px solid rgba(236,72,153,.5)}
+.char .ci{font-size:36px;background:#0f172a;border-radius:14px;padding:6px 10px}
+.char .ck{font-size:10.5px;font-weight:900;color:#f9a8d4;letter-spacing:.08em;text-transform:uppercase}
+.char b{font-size:17px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:12px 0}
+.pcard{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:132px;justify-content:center}
+.pcard.has{cursor:pointer;border-color:#334155} .pcard.has:hover{border-color:var(--gold)}
+.pcard .av{font-size:34px;line-height:1}
+.pcard .nm{font-weight:800;font-size:14px;overflow-wrap:anywhere}
+.tag{font-size:9.5px;font-weight:900;text-transform:uppercase;background:#334155;border-radius:6px;padding:1px 5px;vertical-align:middle}
+.st{font-size:12.5px;font-weight:700;color:#cbd5e1}
+.st.off{color:#64748b} .st.err{color:#fca5a5}
+.score{font-family:Fredoka,sans-serif;font-weight:700;font-size:30px;line-height:1}
+.score.big{font-size:72px;margin:6px 0}
+.s-ok{color:var(--ok)} .s-mid{color:var(--mid)} .s-bad{color:var(--bad)}
+.bonus{font-size:11px;font-weight:900;color:#f9a8d4}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid #475569;border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-1px}
+.subs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+@media(max-width:560px){.subs{grid-template-columns:repeat(2,1fr)}}
+.subc{background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:8px 10px;position:relative;overflow:hidden}
+.subc span{display:block;font-size:10.5px;font-weight:900;text-transform:uppercase;color:var(--muted);letter-spacing:.05em}
+.subc b{font-family:Fredoka,sans-serif;font-size:24px}
+.subc i{position:absolute;left:0;bottom:0;height:3px;width:var(--v);background:currentColor;opacity:.6}
+.words{line-height:2.3;margin:8px 0}
+.w{display:inline-flex;align-items:baseline;gap:4px;padding:2px 9px;border-radius:9px;margin:2px 1px;font-weight:800;font-size:16px;border:1px solid transparent}
+.w small{font-size:10.5px;opacity:.85;font-weight:700}
+.w-ok{background:rgba(34,197,94,.16);color:#86efac;border-color:rgba(34,197,94,.4)}
+.w-mid{background:rgba(245,158,11,.16);color:#fcd34d;border-color:rgba(245,158,11,.45)}
+.w-bad{background:rgba(239,68,68,.16);color:#fca5a5;border-color:rgba(239,68,68,.45)}
+.w-om{color:#94a3b8;border:1px dashed #64748b;text-decoration:line-through}
+.w-ins{color:#cbd5e1;font-style:italic;background:rgba(148,163,184,.1);border:1px dotted #64748b}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11.5px;color:var(--muted);font-weight:600}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px;background:var(--c)}
+.tips{margin:12px 0 0;padding-left:20px;font-size:14px;line-height:1.5}
+.tips li{margin-bottom:6px}
+.tips b{color:#fcd34d}
+.rank{max-width:560px;margin:14px auto;display:flex;flex-direction:column;gap:8px;text-align:left}
+.rk{position:relative;display:flex;align-items:center;gap:10px;background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:10px 12px;overflow:hidden}
+.rk .bar{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(245,158,11,.22),rgba(139,92,246,.12));width:0;transition:width 1s ease}
+.rk>*:not(.bar){position:relative}
+.rk .pos{font-family:Fredoka,sans-serif;font-weight:700;width:34px;text-align:center;color:#fcd34d}
+.rk .nm{flex:1;font-weight:800;overflow-wrap:anywhere}
+.rk .pts{font-family:Fredoka,sans-serif;font-weight:700;font-size:20px;color:#fcd34d}
+.rk .dl{font-size:11px;color:var(--muted);font-weight:700}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin:18px 0 6px}
+.pod{width:120px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pod .av{font-size:40px}
+.pod .nm{font-weight:800;font-size:13.5px;overflow-wrap:anywhere;text-align:center}
+.pod .blk{width:100%;border-radius:14px 14px 4px 4px;display:grid;place-items:center;font-family:Fredoka,sans-serif;font-size:26px;font-weight:700;color:#111}
+.pod.p1 .blk{height:130px;background:linear-gradient(180deg,#fcd34d,#d97706)}
+.pod.p2 .blk{height:95px;background:linear-gradient(180deg,#e2e8f0,#94a3b8)}
+.pod.p3 .blk{height:70px;background:linear-gradient(180deg,#fdba74,#c2410c)}
+.lobby{display:grid;grid-template-columns:minmax(260px,380px) 1fr;gap:16px}
+@media(max-width:820px){.lobby{grid-template-columns:1fr}}
+.pin{font-family:Fredoka,sans-serif;font-size:56px;font-weight:700;letter-spacing:8px;color:#fcd34d;background:#0f172a;border:1px solid rgba(245,158,11,.35);border-radius:18px;padding:6px 0;text-align:center}
+.qr{background:#fff;border-radius:16px;padding:10px;width:260px;height:260px;margin:12px auto;display:grid;place-items:center}
+.qr svg{width:100%;height:100%}
+.link{font-size:12.5px;word-break:break-all;background:#0f172a;border-radius:10px;padding:8px 10px;color:#cbd5e1;border:1px solid #1e293b}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0 14px}
+.pchip{display:flex;align-items:center;gap:8px;background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:8px 10px;font-weight:800;font-size:14px;animation:pop .3s ease}
+.pchip .av{font-size:22px}
+.pchip .nm{flex:1;overflow-wrap:anywhere}
+.pchip .x{background:none;border:0;color:#64748b;cursor:pointer;font-size:15px;padding:2px 4px}
+.pchip .x:hover{color:#fca5a5}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none}
+.dot.off{background:#64748b}
+.big-emoji{font-size:64px;line-height:1.1;margin:6px 0}
+.bounce{animation:bounce .7s infinite alternate}
+.avgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+@media(max-width:420px){.avgrid{grid-template-columns:repeat(6,1fr)}}
+.avbtn{font-size:26px;background:#0f172a;border:2px solid #1e293b;border-radius:12px;padding:6px 0;cursor:pointer}
+.avbtn.sel{border-color:var(--gold);background:rgba(245,158,11,.15)}
+.recorder{display:flex;flex-direction:column;align-items:center;gap:12px;padding:6px 0}
+.rec-btn{width:156px;height:156px;border-radius:50%;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:Fredoka,sans-serif;font-size:20px;font-weight:700;color:#111;background:radial-gradient(circle at 35% 30%,#fde68a,#f59e0b 55%,#b45309);box-shadow:0 0 0 8px rgba(245,158,11,.15),0 18px 40px rgba(0,0,0,.4)}
+.rec-btn .rec-ico{font-size:44px}
+.rec-btn.on{color:#fff;background:radial-gradient(circle at 35% 30%,#fca5a5,#ef4444 55%,#991b1b);animation:pulse 1.2s infinite}
+.hint{text-align:center;color:var(--muted);font-weight:600;font-size:14px;margin:0}
+.meter{width:220px;height:10px;border-radius:999px;background:#1e293b;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22c55e,#fbbf24,#ef4444);transition:width .08s}
+audio{width:100%;max-width:420px}
+.modal-bg{position:fixed;inset:0;background:rgba(2,6,23,.86);display:flex;align-items:center;justify-content:center;padding:14px;z-index:50}
+.modal{max-width:680px;width:100%;max-height:92vh;overflow:auto;margin:0}
+.adjust{background:#0b1222;border:1px solid #1e293b;border-radius:14px;padding:4px 14px 12px;margin:14px 0}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);opacity:0;pointer-events:none;z-index:80;max-width:min(92vw,560px);padding:12px 16px;border-radius:14px;font-weight:700;font-size:14px;background:#1e293b;border:1px solid var(--line);box-shadow:0 12px 30px rgba(0,0,0,.5);transition:.25s}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{background:#450a0a;border-color:rgba(239,68,68,.5)}
+#toast.ok{background:#052e16;border-color:rgba(34,197,94,.5)}
+.foot{text-align:center;color:#475569;font-size:11.5px;margin-top:10px}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 8px rgba(239,68,68,.25)}50%{box-shadow:0 0 0 22px rgba(239,68,68,.05)}}
+@keyframes bounce{to{transform:translateY(-10px)}}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="panel topbar">
+    <div class="brand">
+      <div class="logo">🦜</div>
+      <div><div class="title">Franpañol Duel</div><div class="subt">🇫🇷 Le Juego des Voix 🇪🇸 · Mascote Piquito</div></div>
+    </div>
+    <div id="hdr" class="row wrap-row"></div>
+  </div>
+</div>
+<main id="app" class="wrap"></main>
+<div id="modal-root"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Franpañol Duel — duelo de pronúncia com avaliação real (Azure AI Speech)
+   - Professor: abre esta página no computador (modo professor).
+   - Alunos: entram pelo QR code (?sala=PIN) e gravam no celular.
+   - O áudio vai do celular direto para o computador do professor (WebRTC/PeerJS),
+     que envia para o Azure. A chave do Azure nunca sai do computador do professor.
+   ===================================================================== */
+
+/* ---------- utilidades ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const app = $('#app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const scoreCls = v => v == null ? '' : v >= 80 ? 's-ok' : v >= 60 ? 's-mid' : 's-bad';
+
+const PEER_PREFIX = 'franpanol-duel-v2-';
+const PEER_OPTS = Object.assign({ debug: 0 }, window.PEER_OPTS || {});
+
+/* Servidores de retransmissão (TURN): quando a rede bloqueia a conexão direta entre
+   aparelhos, o áudio passa por um servidor intermediário nas portas 80/443.
+   - Se o professor colou os dados da conta Metered, eles são usados (e vão no QR code).
+   - Sem isso, tentamos o relay público do Open Relay Project e o da PeerJS. */
+function parseRelayInput(txt) {
+  const t = String(txt || '').trim(); if (!t) return null;
+  const m = t.match(/https?:\/\/([a-z0-9-]+)\.metered\.live\/api\/v1\/turn\/credentials\?apiKey=([\w-]+)/i);
+  if (m) return { t: 'api', app: m[1].toLowerCase(), key: m[2] };
+  const u = t.match(/username["']?\s*[:=]\s*["']([^"']+)["']/i), c = t.match(/credentials?["']?\s*[:=]\s*["']([^"']+)["']/i);
+  const urls = [...new Set(t.match(/turns?:[^"'\s,\]]+/g) || [])].slice(0, 4);
+  if (u && c && urls.length) return { t: 'static', urls, username: u[1], credential: c[1] };
+  return null;
+}
+function validRelay(r) {
+  if (!r || typeof r !== 'object') return null;
+  if (r.t === 'api' && /^[a-z0-9-]{1,60}$/.test(r.app) && /^[\w-]{8,120}$/.test(r.key)) return { t: 'api', app: r.app, key: r.key };
+  if (r.t === 'static' && Array.isArray(r.urls) && r.urls.length && r.urls.every(x => /^turns?:[\w.\-:?=&]+$/.test(x)) && typeof r.username === 'string' && typeof r.credential === 'string' && r.username.length < 200 && r.credential.length < 200)
+    return { t: 'static', urls: r.urls.slice(0, 4), username: r.username, credential: r.credential };
+  return null;
+}
+/* Link curto para o QR code: "a~app~key" (API) ou "m~host~usuário~senha" (servidores da Metered). */
+const METERED_URLS = h => [`turn:${h}:80`, `turn:${h}:80?transport=tcp`, `turn:${h}:443`, `turns:${h}:443?transport=tcp`];
+function encodeRelay(r) {
+  const ok = x => !/[~&#\s]/.test(x);
+  if (r.t === 'api' && ok(r.key)) return 'a~' + r.app + '~' + r.key;
+  if (r.t === 'static' && ok(r.username) && ok(r.credential)) {
+    const hosts = [...new Set(r.urls.map(u => u.replace(/^turns?:/, '').split(':')[0]))];
+    if (hosts.length === 1 && /\.metered\.ca$/.test(hosts[0])) return 'm~' + hosts[0] + '~' + encodeURIComponent(r.username) + '~' + encodeURIComponent(r.credential);
+  }
+  return encodeRelayLong(r);
+}
+function decodeRelay(str) {
+  const p = String(str || '').split('~');
+  try {
+    if (p[0] === 'a' && p.length === 3) return validRelay({ t: 'api', app: p[1], key: p[2] });
+    if (p[0] === 'm' && p.length === 4) return validRelay({ t: 'static', urls: METERED_URLS(p[1]), username: decodeURIComponent(p[2]), credential: decodeURIComponent(p[3]) });
+  } catch (e) { return null; }
+  return decodeRelayLong(str);
+}
+function encodeRelayLong(r) { return btoa(unescape(encodeURIComponent(JSON.stringify(r)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function decodeRelayLong(str) { try { return validRelay(JSON.parse(decodeURIComponent(escape(atob(String(str).replace(/-/g, '+').replace(/_/g, '/')))))); } catch (e) { return null; } }
+async function fetchMetered(r) {
+  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 6000);
+  try {
+    const res = await fetch(`https://${r.app}.metered.live/api/v1/turn/credentials?apiKey=${encodeURIComponent(r.key)}`, { signal: ctl.signal });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const arr = await res.json();
+    if (!Array.isArray(arr) || !arr.length) throw new Error('resposta vazia');
+    return arr;
+  } finally { clearTimeout(tm); }
+}
+async function relayIce(r) {
+  if (r.t === 'api') return await fetchMetered(r);
+  return [{ urls: 'stun:stun.l.google.com:19302' }, { urls: r.urls, username: r.username, credential: r.credential }];
+}
+/* Teste real: tenta obter um "candidato de retransmissão" usando só o servidor TURN. */
+async function testRelay(r) {
+  const ice = await relayIce(r);
+  const pc = new RTCPeerConnection({ iceServers: ice, iceTransportPolicy: 'relay' });
+  pc.createDataChannel('t');
+  const ok = new Promise(res => {
+    pc.onicecandidate = e => { if (e.candidate && / relay /.test(e.candidate.candidate)) res(true); else if (!e.candidate) res(false); };
+    setTimeout(() => res(false), 9000);
+  });
+  await pc.setLocalDescription(await pc.createOffer());
+  const v = await ok; pc.close(); return v;
+}
+async function openRelayStatic() {
+  const user = (Math.floor(Date.now() / 1000) + 12 * 3600) + ':franpanol';
+  const enc = new TextEncoder();
+  const k = await crypto.subtle.importKey('raw', enc.encode('openrelayprojectsecret'), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', k, enc.encode(user)));
+  let bin = ''; sig.forEach(b => { bin += String.fromCharCode(b); });
+  return { urls: ['turn:staticauth.openrelay.metered.ca:80', 'turn:staticauth.openrelay.metered.ca:443?transport=tcp'], username: user, credential: btoa(bin) };
+}
+async function peerOptions(relay) {
+  const r = validRelay(relay);
+  if (r) { try { return Object.assign({}, PEER_OPTS, { config: { iceServers: await relayIce(r) } }); } catch (e) { console.warn('Retransmissão da Metered indisponível', e); } }
+  const ice = [{ urls: 'stun:stun.l.google.com:19302' }];
+  try { ice.push(await openRelayStatic()); } catch (e) {}
+  ice.push({ urls: ['turn:eu-0.turn.peerjs.com:3478', 'turn:us-0.turn.peerjs.com:3478'], username: 'peerjs', credential: 'peerjsp' });
+  return Object.assign({}, PEER_OPTS, { config: { iceServers: ice } });
+}
+const LIBS = {
+  sdk: 'https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.51.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js',
+  qr: 'https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.js'
+};
+const AVATARS = ['🦊', '🐼', '🦁', '🐸', '🐯', '🦄', '🐨', '🐙', '🐧', '🦉', '🐢', '🐝', '🦖', '🐳', '🦩', '🐶'];
+const LANGS = { fr: { label: 'Francês', flag: '🇫🇷' }, es: { label: 'Espanhol', flag: '🇪🇸' } };
+const REGIONS = ['brazilsouth', 'eastus', 'eastus2', 'westus', 'westus2', 'westus3', 'centralus', 'southcentralus', 'northcentralus', 'canadacentral', 'westeurope', 'northeurope', 'francecentral', 'uksouth', 'swedencentral', 'switzerlandnorth', 'germanywestcentral', 'japaneast', 'koreacentral', 'southeastasia', 'eastasia', 'australiaeast', 'centralindia'];
+const FREE_MIN = 300; // 5 h/mês no plano F0
+const CHARACTERS = [
+  { icon: '🦹', name: 'Vilão Maléfico', guide: 'Fale com voz grave, pesada e assustadora!' },
+  { icon: '👶', name: 'Bebê Chorão', guide: 'Fale com voz fininha e chorosa!' },
+  { icon: '🧙', name: 'Mago Sábio', guide: 'Fale devagar, com voz trêmula e misteriosa!' },
+  { icon: '👑', name: 'Rei Majestoso', guide: 'Fale com autoridade, forte e projetado!' },
+  { icon: '🤖', name: 'Robô Futurista', guide: 'Fale monótono, pausado, sem variar o tom!' }
+];
+
+/* Banco de frases de exemplo (o professor pode substituir pelas da aula). */
+const BANK = {
+  facil: {
+    fr: ["Bonjour, je m'appelle Marie. | Olá, eu me chamo Marie.", 'Merci beaucoup, madame. | Muito obrigado, senhora.', "J'aime le chocolat. | Eu gosto de chocolate.", "Il fait beau aujourd'hui. | O tempo está bom hoje.", 'Où est la gare ? | Onde fica a estação?'],
+    es: ['Hola, me llamo Pedro. | Olá, eu me chamo Pedro.', 'Muchas gracias, señora. | Muito obrigado, senhora.', 'Me gusta la playa. | Eu gosto da praia.', '¿Dónde está el baño? | Onde fica o banheiro?', 'Hoy hace mucho calor. | Hoje está muito calor.']
+  },
+  medio: {
+    fr: ['Je voudrais une table pour deux personnes. | Eu gostaria de uma mesa para duas pessoas.', 'Nous allons au cinéma ce soir. | Nós vamos ao cinema hoje à noite.', 'Tu veux du pain ou des croissants ? | Você quer pão ou croissants?', 'Le train part à huit heures. | O trem parte às oito horas.', 'Mon frère habite à Paris depuis un an. | Meu irmão mora em Paris há um ano.'],
+    es: ['Quisiera una mesa para dos personas. | Eu gostaria de uma mesa para duas pessoas.', 'El tren sale a las ocho de la mañana. | O trem sai às oito da manhã.', 'Mi hermano vive en Madrid desde el año pasado. | Meu irmão mora em Madri desde o ano passado.', '¿Me trae la cuenta, por favor? | Pode me trazer a conta, por favor?', 'Vamos al cine esta noche con mis amigos. | Vamos ao cinema hoje à noite com meus amigos.']
+  },
+  dificil: {
+    fr: ['Un grand vin blanc et un bon pain brun. | Um grande vinho branco e um bom pão integral.', 'Je suis sûr que tu as vu la rue. | Tenho certeza de que você viu a rua.', "Les chaussettes de l'archiduchesse sont-elles sèches ? | As meias da arquiduquesa estão secas?", 'Il faut que nous prenions rendez-vous rapidement. | Precisamos marcar um horário rapidamente.', 'La grenouille rousse regarde le ciel orageux. | A rã ruiva olha o céu tempestuoso.'],
+    es: ['El perro de Rosa corre por la carretera. | O cachorro da Rosa corre pela estrada.', 'Tres tristes tigres tragaban trigo en un trigal. | Três tigres tristes engoliam trigo num trigal.', 'La gente joven viaja a Jerez en julio. | Os jovens viajam para Jerez em julho.', 'Yo llevo la llave amarilla en el bolsillo. | Eu levo a chave amarela no bolso.', 'El viento vuela sobre el valle verde. | O vento voa sobre o vale verde.']
+  }
+};
+
+/* Nível Insano do banco de exemplos: trava-línguas tradicionais. */
+BANK.insano = {
+  fr: ["Un chasseur sachant chasser doit savoir chasser sans son chien. | Um caçador que sabe caçar deve saber caçar sem o seu cachorro.", "Si six scies scient six cyprès, six cent six scies scient six cent six cyprès. | Se seis serras serram seis ciprestes, seiscentas e seis serras serram seiscentos e seis ciprestes.", "Les chaussettes de l'archiduchesse sont-elles sèches ou archi-sèches ? | As meias da arquiduquesa estão secas ou arquissecas?", "Ton thé t'a-t-il ôté ta toux ? | O teu chá tirou a tua tosse?", "Je veux et j'exige d'exquises excuses. | Eu quero e exijo desculpas requintadas."],
+  es: ["Pablito clavó un clavito en la calva de un calvito. | Pablito pregou um preguinho na careca de um carequinha.", "Erre con erre cigarro, erre con erre barril, rápido ruedan las ruedas del ferrocarril. | Erre com erre cigarro, erre com erre barril, rápido rodam as rodas da ferrovia.", "El cielo está enladrillado, ¿quién lo desenladrillará? | O céu está coberto de tijolos; quem vai tirar os tijolos dele?", "Como poco coco como, poco coco compro. | Como como pouco coco, compro pouco coco.", "Pepe Pecas pica papas con un pico. | Pepe Pecas pica batatas com uma picareta."]
+};
+const LEVELS = [['facil', '🟢 Fácil'], ['medio', '🟡 Médio'], ['dificil', '🔴 Difícil'], ['insano', '⚡ Insano']];
+
+/* Frases prontas por tema (3 por nível, por idioma). "kw" = palavras que o professor
+   pode digitar para chegar ao tema (sem acento, em minúsculas). */
+const THEMES = [
+  { name: 'Cumprimentos e apresentações', kw: ['cumpriment', 'apresent', 'saudac', 'conhec', 'nome', 'ola', 'bom dia', 'greeting'],
+    fr: {
+      facil: ["Bonjour, ça va ? | Olá, tudo bem?", "Je m'appelle Lucas. | Eu me chamo Lucas.", "Enchanté de te connaître. | Prazer em te conhecer."],
+      medio: ["J'ai quinze ans et j'habite au Brésil. | Tenho quinze anos e moro no Brasil.", "Comment tu t'appelles et d'où viens-tu ? | Como você se chama e de onde você vem?", "Je te présente mon amie Julie. | Apresento a você minha amiga Julie."],
+      dificil: ["Je suis brésilien, mais je parle un peu français. | Sou brasileiro, mas falo um pouco de francês.", "Ravi de vous rencontrer, monsieur Durand. | Muito prazer em conhecê-lo, senhor Durand.", "Nous sommes très heureux de vous accueillir aujourd'hui. | Estamos muito felizes em recebê-los hoje."],
+      insano: ["Bonjour à tous, je m'appelle Aurélien et j'adore rencontrer des gens de pays différents. | Olá a todos, eu me chamo Aurélien e adoro conhecer pessoas de países diferentes.", "Enchantée, je suis heureuse de pouvoir enfin vous rencontrer en personne. | Encantada, estou feliz por finalmente poder conhecê-los pessoalmente.", "Permettez-moi de me présenter : je suis l'arrière-petit-fils d'un ancien ambassadeur. | Permitam-me apresentar-me: sou bisneto de um antigo embaixador."]
+    },
+    es: {
+      facil: ["Hola, ¿qué tal? | Olá, tudo bem?", "Me llamo Lucía. | Eu me chamo Lucía.", "Mucho gusto. | Muito prazer."],
+      medio: ["Tengo quince años y vivo en Brasil. | Tenho quinze anos e moro no Brasil.", "¿Cómo te llamas y de dónde eres? | Como você se chama e de onde você é?", "Te presento a mi amigo Jorge. | Apresento a você meu amigo Jorge."],
+      dificil: ["Soy brasileño, pero hablo un poco de español. | Sou brasileiro, mas falo um pouco de espanhol.", "Encantado de conocerle, señor Rodríguez. | Muito prazer em conhecê-lo, senhor Rodríguez.", "Estamos muy contentos de recibirlos hoy aquí. | Estamos muito contentes em recebê-los aqui hoje."],
+      insano: ["Buenos días a todos, me llamo Rodrigo y me encanta conocer gente de otros países. | Bom dia a todos, eu me chamo Rodrigo e adoro conhecer gente de outros países.", "Permítanme presentarme: soy el hijo mayor de una familia muy numerosa de Jerez. | Permitam-me apresentar-me: sou o filho mais velho de uma família muito numerosa de Jerez.", "Encantadísima de conocerlos, llevo muchísimo tiempo queriendo viajar a Guadalajara. | Encantadíssima em conhecê-los, faz muitíssimo tempo que quero viajar a Guadalajara."]
+    } },
+  { name: 'Restaurante e comida', kw: ['restaur', 'comida', 'aliment', 'cozinha', 'cafe', 'lanche', 'refeic', 'culinar', 'comer', 'bebida', 'fruta'],
+    fr: {
+      facil: ["J'ai faim ! | Estou com fome!", "Un café, s'il vous plaît. | Um café, por favor.", "J'aime le fromage. | Eu gosto de queijo."],
+      medio: ["Je voudrais une table pour deux personnes. | Eu gostaria de uma mesa para duas pessoas.", "L'addition, s'il vous plaît, monsieur. | A conta, por favor, senhor.", "Qu'est-ce que vous recommandez aujourd'hui ? | O que o senhor recomenda hoje?"],
+      dificil: ["Je prendrais une soupe à l'oignon et un croque-monsieur. | Eu pediria uma sopa de cebola e um croque-monsieur.", "Pourriez-vous m'apporter une carafe d'eau, s'il vous plaît ? | O senhor poderia me trazer uma jarra de água, por favor?", "Ce croissant au beurre est vraiment délicieux. | Este croissant de manteiga é realmente delicioso."],
+      insano: ["Pour l'entrée, je voudrais des escargots, puis un bœuf bourguignon bien cuit. | De entrada, eu gostaria de escargots, depois um bœuf bourguignon bem passado.", "Excusez-moi, il y a une erreur dans l'addition : nous n'avons pas pris de vin rouge. | Com licença, há um erro na conta: não pedimos vinho tinto.", "Un grand vin blanc, un bon pain brun et un croissant chaud, s'il vous plaît. | Um grande vinho branco, um bom pão integral e um croissant quente, por favor."]
+    },
+    es: {
+      facil: ["Tengo hambre. | Estou com fome.", "Un café, por favor. | Um café, por favor.", "Me gusta el queso. | Eu gosto de queijo."],
+      medio: ["Quisiera una mesa para dos personas. | Eu gostaria de uma mesa para duas pessoas.", "¿Me trae la cuenta, por favor? | Pode me trazer a conta, por favor?", "¿Qué me recomienda hoy? | O que o senhor me recomenda hoje?"],
+      dificil: ["De primero quiero sopa y de segundo arroz con pollo. | De entrada quero sopa e de prato principal arroz com frango.", "¿Podría traerme una jarra de agua fría, por favor? | O senhor poderia me trazer uma jarra de água gelada, por favor?", "Esta tortilla de patatas está riquísima. | Esta tortilha de batatas está deliciosa."],
+      insano: ["Para empezar, quisiera unos churros con chocolate y después una paella de mariscos bien jugosa. | Para começar, eu gostaria de churros com chocolate e depois uma paella de frutos do mar bem suculenta.", "Disculpe, camarero, creo que hay un error en la cuenta: no pedimos ninguna jarra de sangría. | Com licença, garçom, acho que há um erro na conta: não pedimos nenhuma jarra de sangria.", "El cocinero rellena las berenjenas con arroz, ajo, jamón y queso rallado. | O cozinheiro recheia as berinjelas com arroz, alho, presunto e queijo ralado."]
+    } },
+  { name: 'Viagem e hotel', kw: ['viag', 'hotel', 'turis', 'aeroport', 'ferias', 'passagem', 'trem', 'aviao', 'hosped', 'mala'],
+    fr: {
+      facil: ["Où est la gare ? | Onde fica a estação?", "J'aime voyager. | Eu gosto de viajar.", "Voici mon passeport. | Aqui está meu passaporte."],
+      medio: ["Le train part à huit heures. | O trem parte às oito horas.", "J'ai une réservation au nom de Martin. | Tenho uma reserva em nome de Martin.", "À quelle heure est le petit-déjeuner ? | A que horas é o café da manhã?"],
+      dificil: ["Je voudrais un aller-retour pour Bordeaux, s'il vous plaît. | Eu gostaria de uma passagem de ida e volta para Bordeaux, por favor.", "Notre chambre donne sur la rue et il y a beaucoup de bruit. | Nosso quarto dá para a rua e há muito barulho.", "L'avion a du retard à cause du brouillard. | O avião está atrasado por causa da neblina."],
+      insano: ["Excusez-moi, pourriez-vous m'indiquer le chemin le plus rapide pour rejoindre l'aéroport ? | Com licença, poderia me indicar o caminho mais rápido para chegar ao aeroporto?", "Nous avons perdu nos valises à Lyon et notre correspondance pour Marseille est déjà partie. | Perdemos nossas malas em Lyon e nossa conexão para Marselha já partiu.", "Le réceptionniste nous a réservé une chambre luxueuse avec une vue extraordinaire sur la tour Eiffel. | O recepcionista nos reservou um quarto luxuoso com uma vista extraordinária para a Torre Eiffel."]
+    },
+    es: {
+      facil: ["¿Dónde está la estación? | Onde fica a estação?", "Me gusta viajar. | Eu gosto de viajar.", "Aquí está mi pasaporte. | Aqui está meu passaporte."],
+      medio: ["El tren sale a las ocho de la mañana. | O trem sai às oito da manhã.", "Tengo una reserva a nombre de García. | Tenho uma reserva em nome de García.", "¿A qué hora es el desayuno? | A que horas é o café da manhã?"],
+      dificil: ["Quisiera un billete de ida y vuelta para Barcelona. | Eu gostaria de uma passagem de ida e volta para Barcelona.", "Nuestra habitación da a la calle y hay mucho ruido. | Nosso quarto dá para a rua e há muito barulho.", "El vuelo lleva retraso por culpa de la lluvia. | O voo está atrasado por causa da chuva."],
+      insano: ["Disculpe, ¿podría indicarme el camino más rápido para llegar al aeropuerto de Barajas? | Com licença, poderia me indicar o caminho mais rápido para chegar ao aeroporto de Barajas?", "Perdimos las maletas en Valencia y el tren de conexión a Sevilla ya se marchó. | Perdemos as malas em Valência e o trem de conexão para Sevilha já foi embora.", "El recepcionista nos reservó una habitación lujosísima con vistas espectaculares a la sierra. | O recepcionista nos reservou um quarto luxuosíssimo com vista espetacular para a serra."]
+    } },
+  { name: 'Escola e sala de aula', kw: ['escol', 'aula', 'sala', 'estud', 'professor', 'material', 'colegio', 'prova', 'licao'],
+    fr: {
+      facil: ["J'ai un stylo bleu. | Eu tenho uma caneta azul.", "Le professeur est gentil. | O professor é gentil.", "J'aime l'école. | Eu gosto da escola."],
+      medio: ["Ouvrez vos livres à la page dix. | Abram seus livros na página dez.", "Je ne comprends pas cet exercice. | Eu não entendo este exercício.", "Nous avons un examen de maths demain. | Nós temos uma prova de matemática amanhã."],
+      dificil: ["Pouvez-vous répéter la question plus lentement, s'il vous plaît ? | O senhor pode repetir a pergunta mais devagar, por favor?", "Ma matière préférée, c'est l'histoire-géographie. | Minha matéria preferida é história e geografia.", "J'ai oublié mon cahier et ma trousse à la maison. | Esqueci meu caderno e meu estojo em casa."],
+      insano: ["Les élèves doivent rendre leurs devoirs de français avant vendredi prochain, sans exception. | Os alunos devem entregar a lição de francês antes da próxima sexta-feira, sem exceção.", "Pendant la récréation, nous jouons au ballon dans la cour et nous bavardons sans arrêt. | Durante o recreio, jogamos bola no pátio e conversamos sem parar.", "Il faut que nous apprenions ces verbes irréguliers par cœur pour l'interrogation. | Precisamos decorar esses verbos irregulares para a prova oral."]
+    },
+    es: {
+      facil: ["Tengo un bolígrafo azul. | Eu tenho uma caneta azul.", "La profesora es simpática. | A professora é simpática.", "Me gusta la escuela. | Eu gosto da escola."],
+      medio: ["Abran sus libros en la página diez. | Abram seus livros na página dez.", "No entiendo este ejercicio. | Eu não entendo este exercício.", "Mañana tenemos un examen de matemáticas. | Amanhã temos uma prova de matemática."],
+      dificil: ["¿Puede repetir la pregunta más despacio, por favor? | A senhora pode repetir a pergunta mais devagar, por favor?", "Mi asignatura favorita es la historia. | Minha matéria favorita é história.", "Olvidé mi cuaderno y mi estuche en casa. | Esqueci meu caderno e meu estojo em casa."],
+      insano: ["Los alumnos tienen que entregar los deberes de español antes del próximo viernes, sin excepción. | Os alunos têm que entregar a lição de espanhol antes da próxima sexta-feira, sem exceção.", "Durante el recreo jugamos al fútbol en el patio y charlamos sin parar. | Durante o recreio jogamos futebol no pátio e conversamos sem parar.", "Es imprescindible que aprendamos de memoria los verbos irregulares para el examen oral. | É imprescindível que decoremos os verbos irregulares para a prova oral."]
+    } },
+  { name: 'Família e casa', kw: ['famil', 'casa', 'pais', 'irma', 'lar', 'parent', 'mae', 'pai', 'avo', 'moradia'],
+    fr: {
+      facil: ["J'ai deux frères. | Tenho dois irmãos.", "Ma mère s'appelle Anne. | Minha mãe se chama Anne.", "Voici ma maison. | Esta é a minha casa."],
+      medio: ["Mon grand-père habite à la campagne. | Meu avô mora no campo.", "Ma sœur a les cheveux longs et roux. | Minha irmã tem cabelos longos e ruivos.", "Nous dînons ensemble tous les soirs. | Jantamos juntos todas as noites."],
+      dificil: ["Ma tante et mon oncle viennent nous rendre visite ce week-end. | Minha tia e meu tio vêm nos visitar neste fim de semana.", "Notre appartement a trois chambres et un grand salon. | Nosso apartamento tem três quartos e uma sala grande.", "Mon cousin est plus jeune que moi, mais il est plus grand. | Meu primo é mais novo que eu, mas é mais alto."],
+      insano: ["Chaque dimanche, toute la famille se réunit chez mes grands-parents pour un déjeuner interminable. | Todo domingo, a família inteira se reúne na casa dos meus avós para um almoço interminável.", "Mon arrière-grand-mère raconte toujours des histoires extraordinaires sur sa jeunesse en Bretagne. | Minha bisavó sempre conta histórias extraordinárias sobre sua juventude na Bretanha.", "Ma belle-sœur rénove leur vieille maison et remplace les fenêtres, le parquet et la cheminée. | Minha cunhada está reformando a casa antiga deles e trocando as janelas, o piso e a lareira."]
+    },
+    es: {
+      facil: ["Tengo dos hermanos. | Tenho dois irmãos.", "Mi madre se llama Ana. | Minha mãe se chama Ana.", "Esta es mi casa. | Esta é a minha casa."],
+      medio: ["Mi abuelo vive en el campo. | Meu avô mora no campo.", "Mi hermana tiene el pelo largo y rizado. | Minha irmã tem o cabelo comprido e cacheado.", "Cenamos juntos todas las noches. | Jantamos juntos todas as noites."],
+      dificil: ["Mis tíos vienen a visitarnos este fin de semana. | Meus tios vêm nos visitar neste fim de semana.", "Nuestro piso tiene tres habitaciones y un salón grande. | Nosso apartamento tem três quartos e uma sala grande.", "Mi primo es más joven que yo, pero es más alto. | Meu primo é mais novo que eu, mas é mais alto."],
+      insano: ["Todos los domingos la familia entera se reúne en casa de mis abuelos para una comida interminable. | Todos os domingos a família inteira se reúne na casa dos meus avós para um almoço interminável.", "Mi bisabuela siempre cuenta historias extraordinarias de su juventud en un pueblecito de Galicia. | Minha bisavó sempre conta histórias extraordinárias da sua juventude num povoadinho da Galícia.", "Mi cuñado arregla la vieja casa y cambia las ventanas, el suelo y la chimenea. | Meu cunhado conserta a casa velha e troca as janelas, o piso e a lareira."]
+    } },
+  { name: 'Rotina e horas', kw: ['rotina', 'dia a dia', 'hora', 'acordar', 'cotidian', 'manha', 'noite', 'horario'],
+    fr: {
+      facil: ["Je me lève tôt. | Eu acordo cedo.", "Il est huit heures. | São oito horas.", "Je prends ma douche. | Eu tomo meu banho."],
+      medio: ["Je prends le bus à sept heures et demie. | Eu pego o ônibus às sete e meia.", "Le soir, je fais mes devoirs et je lis. | À noite, faço a lição e leio.", "Le samedi, je dors jusqu'à midi. | No sábado, durmo até meio-dia."],
+      dificil: ["D'habitude, je me brosse les dents avant de m'habiller. | Normalmente, escovo os dentes antes de me vestir.", "Je me couche vers onze heures, mais je m'endors tard. | Vou para a cama por volta das onze, mas pego no sono tarde.", "Tous les matins, mon réveil sonne à six heures et quart. | Todas as manhãs, meu despertador toca às seis e quinze."],
+      insano: ["Quand le réveil sonne, je me retourne dans mon lit et je rêve de dormir encore une heure. | Quando o despertador toca, eu me viro na cama e sonho em dormir mais uma hora.", "Après le déjeuner, je range ma chambre, je sors le chien et je retrouve mes amis au parc. | Depois do almoço, arrumo meu quarto, levo o cachorro para passear e encontro meus amigos no parque.", "En rentrant du travail, ma mère prépare le dîner pendant que mon père surveille nos devoirs. | Ao voltar do trabalho, minha mãe prepara o jantar enquanto meu pai acompanha nossa lição."]
+    },
+    es: {
+      facil: ["Me levanto temprano. | Eu acordo cedo.", "Son las ocho. | São oito horas.", "Me ducho por la mañana. | Eu tomo banho de manhã."],
+      medio: ["Tomo el autobús a las siete y media. | Pego o ônibus às sete e meia.", "Por la noche hago los deberes y leo. | À noite faço a lição e leio.", "Los sábados duermo hasta mediodía. | Aos sábados durmo até meio-dia."],
+      dificil: ["Normalmente me cepillo los dientes antes de vestirme. | Normalmente escovo os dentes antes de me vestir.", "Me acuesto sobre las once, pero me duermo tarde. | Vou para a cama por volta das onze, mas pego no sono tarde.", "Todas las mañanas el despertador suena a las seis y cuarto. | Todas as manhãs o despertador toca às seis e quinze."],
+      insano: ["Cuando suena el despertador, me doy la vuelta en la cama y sueño con dormir otra hora más. | Quando o despertador toca, me viro na cama e sonho em dormir mais uma hora.", "Después de comer, ordeno mi cuarto, saco al perro y me reúno con mis amigos en el parque. | Depois de comer, arrumo meu quarto, levo o cachorro para passear e me encontro com meus amigos no parque.", "Al regresar del trabajo, mi madre prepara la cena mientras mi padre revisa nuestros deberes. | Ao voltar do trabalho, minha mãe prepara o jantar enquanto meu pai revisa nossa lição."]
+    } },
+  { name: 'Compras e roupas', kw: ['compra', 'roupa', 'loja', 'mercado', 'preco', 'dinheiro', 'vestu', 'moda', 'feira'],
+    fr: {
+      facil: ["C'est combien ? | Quanto custa?", "J'aime ce pull rouge. | Eu gosto deste suéter vermelho.", "Je cherche des chaussures. | Estou procurando sapatos."],
+      medio: ["Est-ce que je peux essayer ce pantalon ? | Posso experimentar esta calça?", "Vous avez cette robe en taille moyenne ? | Vocês têm este vestido em tamanho médio?", "Je paie par carte, s'il vous plaît. | Vou pagar com cartão, por favor."],
+      dificil: ["Cette chemise est trop serrée, vous avez la taille au-dessus ? | Esta camisa está apertada demais, vocês têm o tamanho acima?", "Les soldes commencent mercredi dans tous les magasins. | As liquidações começam na quarta-feira em todas as lojas.", "Je voudrais échanger ces chaussettes, elles sont abîmées. | Eu gostaria de trocar estas meias, estão danificadas."],
+      insano: ["Au marché, j'ai acheté six saucisses, trois fromages et une douzaine d'œufs frais. | Na feira, comprei seis salsichas, três queijos e uma dúzia de ovos frescos.", "Ce manteau en laine est superbe, mais franchement, il est beaucoup trop cher pour moi. | Este casaco de lã é lindo, mas, sinceramente, é caro demais para mim.", "La vendeuse m'a conseillé une écharpe assortie à mes gants et à mon bonnet. | A vendedora me recomendou um cachecol combinando com minhas luvas e meu gorro."]
+    },
+    es: {
+      facil: ["¿Cuánto cuesta? | Quanto custa?", "Me gusta este jersey rojo. | Eu gosto deste suéter vermelho.", "Busco unos zapatos. | Estou procurando sapatos."],
+      medio: ["¿Puedo probarme estos pantalones? | Posso experimentar esta calça?", "¿Tienen este vestido en la talla mediana? | Vocês têm este vestido no tamanho médio?", "Pago con tarjeta, por favor. | Pago com cartão, por favor."],
+      dificil: ["Esta camisa me queda estrecha, ¿tienen una talla más grande? | Esta camisa está apertada, vocês têm um tamanho maior?", "Las rebajas empiezan el miércoles en todas las tiendas. | As liquidações começam na quarta-feira em todas as lojas.", "Quisiera cambiar estos calcetines, están rotos. | Eu gostaria de trocar estas meias, estão rasgadas."],
+      insano: ["En el mercado compré seis chorizos, tres quesos y una docena de huevos frescos. | Na feira comprei seis chouriços, três queijos e uma dúzia de ovos frescos.", "Este abrigo de lana es precioso, pero sinceramente es carísimo para mi bolsillo. | Este casaco de lã é lindo, mas sinceramente é caríssimo para o meu bolso.", "La dependienta me aconsejó una bufanda que combinara con mis guantes y mi gorro. | A vendedora me aconselhou um cachecol que combinasse com minhas luvas e meu gorro."]
+    } },
+  { name: 'Clima e natureza', kw: ['clima', 'tempo', 'estac', 'natureza', 'chuva', 'frio', 'calor', 'animal', 'meio ambiente', 'praia'],
+    fr: {
+      facil: ["Il fait froid. | Está frio.", "Il pleut aujourd'hui. | Está chovendo hoje.", "J'aime la mer. | Eu gosto do mar."],
+      medio: ["En été, il fait très chaud au Brésil. | No verão, faz muito calor no Brasil.", "Les feuilles tombent en automne. | As folhas caem no outono.", "Demain, il va neiger à la montagne. | Amanhã vai nevar na montanha."],
+      dificil: ["Le ciel est couvert et il y a du vent sur la plage. | O céu está nublado e está ventando na praia.", "Après l'orage, un magnifique arc-en-ciel est apparu. | Depois da tempestade, um arco-íris magnífico apareceu.", "Les oiseaux chantent dans les arbres au printemps. | Os pássaros cantam nas árvores na primavera."],
+      insano: ["La grenouille rousse regarde le ciel orageux pendant que la pluie tombe sur les roseaux. | A rã ruiva olha o céu tempestuoso enquanto a chuva cai sobre os juncos.", "Au bord du ruisseau, les écureuils ramassent des noisettes avant l'arrivée de l'hiver. | À beira do riacho, os esquilos juntam avelãs antes da chegada do inverno.", "Le brouillard épais recouvre la vallée et les montagnes enneigées disparaissent peu à peu. | A neblina espessa cobre o vale e as montanhas nevadas desaparecem pouco a pouco."]
+    },
+    es: {
+      facil: ["Hace frío. | Está frio.", "Hoy llueve. | Hoje está chovendo.", "Me gusta el mar. | Eu gosto do mar."],
+      medio: ["En verano hace mucho calor en Brasil. | No verão faz muito calor no Brasil.", "Las hojas caen en otoño. | As folhas caem no outono.", "Mañana va a nevar en la montaña. | Amanhã vai nevar na montanha."],
+      dificil: ["El cielo está nublado y hace viento en la playa. | O céu está nublado e está ventando na praia.", "Después de la tormenta apareció un arcoíris precioso. | Depois da tempestade apareceu um arco-íris lindo.", "Los pájaros cantan en los árboles en primavera. | Os pássaros cantam nas árvores na primavera."],
+      insano: ["El viento vuela sobre el valle verde mientras la lluvia rueda por las rocas del barranco. | O vento voa sobre o vale verde enquanto a chuva rola pelas rochas do barranco.", "Junto al arroyo, las ardillas recogen bellotas antes de que llegue el invierno. | Junto ao riacho, os esquilos recolhem bolotas antes que chegue o inverno.", "La niebla espesa cubre el valle y las montañas nevadas desaparecen poco a poco. | A neblina espessa cobre o vale e as montanhas nevadas desaparecem pouco a pouco."]
+    } },
+  { name: 'Esportes e lazer', kw: ['esport', 'hobb', 'lazer', 'futebol', 'musica', 'jogo', 'cinema', 'diversao', 'tempo livre'],
+    fr: {
+      facil: ["J'aime le football. | Eu gosto de futebol.", "Je joue de la guitare. | Eu toco violão.", "On va au cinéma ? | Vamos ao cinema?"],
+      medio: ["Le samedi, je fais du vélo avec mes amis. | Aos sábados, ando de bicicleta com meus amigos.", "Mon équipe a gagné le match hier soir. | Meu time ganhou a partida ontem à noite.", "Je préfère lire un livre que regarder la télé. | Prefiro ler um livro a assistir TV."],
+      dificil: ["Je m'entraîne à la piscine trois fois par semaine. | Eu treino na piscina três vezes por semana.", "Le gardien a arrêté le penalty à la dernière minute. | O goleiro defendeu o pênalti no último minuto.", "Ma sœur fait de l'escalade et du judo depuis deux ans. | Minha irmã faz escalada e judô há dois anos."],
+      insano: ["Le cycliste escalade les cols des Alpes sous une chaleur écrasante. | O ciclista sobe as serras dos Alpes sob um calor sufocante.", "Pendant les vacances, nous faisons de la randonnée, du kayak et de l'équitation en Auvergne. | Nas férias, fazemos trilha, caiaque e equitação na Auvergne.", "L'arbitre a sifflé la fin du match et les supporters ont envahi le terrain en hurlant. | O juiz apitou o fim da partida e os torcedores invadiram o campo gritando."]
+    },
+    es: {
+      facil: ["Me gusta el fútbol. | Eu gosto de futebol.", "Toco la guitarra. | Eu toco violão.", "¿Vamos al cine? | Vamos ao cinema?"],
+      medio: ["Los sábados monto en bici con mis amigos. | Aos sábados ando de bicicleta com meus amigos.", "Mi equipo ganó el partido anoche. | Meu time ganhou a partida ontem à noite.", "Prefiero leer un libro a ver la tele. | Prefiro ler um livro a ver TV."],
+      dificil: ["Entreno en la piscina tres veces por semana. | Treino na piscina três vezes por semana.", "El portero paró el penalti en el último minuto. | O goleiro defendeu o pênalti no último minuto.", "Mi hermana hace escalada y judo desde hace dos años. | Minha irmã faz escalada e judô há dois anos."],
+      insano: ["El árbitro pitó el final del partido y los aficionados invadieron el campo gritando. | O juiz apitou o fim da partida e os torcedores invadiram o campo gritando.", "En vacaciones hacemos senderismo, kayak y equitación por los Pirineos. | Nas férias fazemos trilha, caiaque e equitação pelos Pirineus.", "Rápido ruedan las ruedas del ferrocarril, rápido corren los carros cargados de azúcar. | Rápido rodam as rodas da ferrovia, rápido correm os carros carregados de açúcar."]
+    } },
+  { name: 'Cidade e direções', kw: ['cidade', 'direc', 'rua', 'transporte', 'onibus', 'bairro', 'metro', 'caminho', 'lugar'],
+    fr: {
+      facil: ["Où est la banque ? | Onde fica o banco?", "C'est à gauche. | É à esquerda.", "Je prends le métro. | Eu pego o metrô."],
+      medio: ["Tournez à droite au prochain carrefour. | Vire à direita no próximo cruzamento.", "La pharmacie est en face de la poste. | A farmácia fica em frente aos correios.", "Il y a un bus toutes les dix minutes. | Tem um ônibus a cada dez minutos."],
+      dificil: ["Excusez-moi, le musée est loin d'ici ? | Com licença, o museu fica longe daqui?", "Continuez tout droit jusqu'au feu rouge, puis traversez. | Siga em frente até o semáforo e depois atravesse.", "Notre quartier est calme, mais il y a beaucoup de circulation. | Nosso bairro é tranquilo, mas há muito trânsito."],
+      insano: ["Pour aller à la cathédrale, prenez la deuxième rue à gauche, puis suivez les panneaux. | Para ir à catedral, pegue a segunda rua à esquerda e depois siga as placas.", "À l'heure de pointe, le métro parisien est tellement bondé qu'on respire à peine. | Na hora do rush, o metrô de Paris fica tão lotado que mal dá para respirar.", "Le boulanger du boulevard ouvre sa boutique bien avant l'aube, même le dimanche. | O padeiro do bulevar abre sua loja bem antes do amanhecer, até no domingo."]
+    },
+    es: {
+      facil: ["¿Dónde está el banco? | Onde fica o banco?", "Está a la izquierda. | Fica à esquerda.", "Tomo el metro. | Eu pego o metrô."],
+      medio: ["Gire a la derecha en el próximo cruce. | Vire à direita no próximo cruzamento.", "La farmacia está enfrente de correos. | A farmácia fica em frente aos correios.", "Hay un autobús cada diez minutos. | Tem um ônibus a cada dez minutos."],
+      dificil: ["Disculpe, ¿el museo está lejos de aquí? | Com licença, o museu fica longe daqui?", "Siga todo recto hasta el semáforo y luego cruce la calle. | Siga em frente até o semáforo e depois atravesse a rua.", "Nuestro barrio es tranquilo, pero hay mucho tráfico. | Nosso bairro é tranquilo, mas há muito trânsito."],
+      insano: ["Para llegar a la catedral, tome la segunda calle a la izquierda y siga las señales. | Para chegar à catedral, pegue a segunda rua à esquerda e siga as placas.", "En hora punta, el metro de la ciudad va tan lleno que apenas se puede respirar. | Na hora do rush, o metrô da cidade vai tão cheio que mal dá para respirar.", "El cerrajero del barrio arregla cerraduras y rejas desde el amanecer hasta el anochecer. | O chaveiro do bairro conserta fechaduras e grades do amanhecer ao anoitecer."]
+    } }
+];
+
+/* ---------- toast, modal, sons ---------- */
+let toastTimer = null;
+function toast(msg, type = 'info', ms = 3800) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'show ' + type;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = type; }, ms);
+}
+let modalCleanup = null;
+function openModal(html, onClose) {
+  closeModal();
+  $('#modal-root').innerHTML = `<div class="modal-bg"><div class="modal panel">${html}</div></div>`;
+  modalCleanup = onClose || null;
+  const bg = $('#modal-root .modal-bg');
+  bg.addEventListener('mousedown', e => { if (e.target === bg) closeModal(); });
+  return $('#modal-root .modal');
+}
+function closeModal() {
+  if (modalCleanup) { const f = modalCleanup; modalCleanup = null; try { f(); } catch (e) {} }
+  $('#modal-root').innerHTML = '';
+}
+let muted = store.get('fpd_muted', false);
+function beep(type) {
+  if (muted) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; const ctx = new AC();
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.connect(g); g.connect(ctx.destination);
+    const n = ctx.currentTime;
+    if (type === 'win') { o.frequency.setValueAtTime(523, n); o.frequency.exponentialRampToValueAtTime(1046, n + .3); }
+    else { o.frequency.setValueAtTime(330, n); o.frequency.exponentialRampToValueAtTime(495, n + .18); }
+    g.gain.setValueAtTime(.15, n); g.gain.exponentialRampToValueAtTime(.001, n + .4);
+    o.start(n); o.stop(n + .42); setTimeout(() => ctx.close(), 700);
+  } catch (e) {}
+}
+function confettiBurst() { if (typeof confetti === 'function') confetti({ particleCount: 110, spread: 70, origin: { y: .6 } }); }
+
+/* ---------- voz de referência (síntese do navegador) ---------- */
+function speak(text, locale) {
+  if (!('speechSynthesis' in window)) return toast('Este navegador não tem voz sintetizada.', 'err');
+  const ss = window.speechSynthesis; ss.cancel();
+  const u = new SpeechSynthesisUtterance(text); u.lang = locale; u.rate = .85;
+  const vs = ss.getVoices(); const base = locale.slice(0, 2);
+  const v = vs.find(x => x.lang.replace('_', '-') === locale) || vs.find(x => x.lang.toLowerCase().startsWith(base));
+  if (v) u.voice = v;
+  ss.speak(u);
+}
+if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+
+/* ---------- carregar scripts sob demanda ---------- */
+const scriptCache = {};
+function loadScript(src) {
+  if (!scriptCache[src]) scriptCache[src] = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.onload = res;
+    s.onerror = () => { delete scriptCache[src]; rej(new Error('Falha ao carregar ' + src)); };
+    document.head.appendChild(s);
+  });
+  return scriptCache[src];
+}
+
+/* =====================================================================
+   GRAVAÇÃO: captura PCM pelo Web Audio, converte para WAV 16 kHz mono
+   (formato exigido pelo Azure). Funciona igual em Android, iPhone e PC.
+   ===================================================================== */
+class Recorder {
+  /* Modo principal: captura PCM pelo Web Audio. Se o AudioContext não "acordar"
+     (acontece em alguns computadores, p.ex. sem saída de som ativa), cai para o
+     MediaRecorder e decodifica o áudio depois — funciona do mesmo jeito. */
+  async start(onLevel, onHint) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { const e = new Error('insecure'); e.name = 'InsecureContext'; throw e; }
+    this.cancelled = false;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    try { this.ctx = new AC(); } catch (e) { this.ctx = null; } // criado dentro do toque (exigência do iPhone)
+    const resumed = this.ctx ? this.ctx.resume().catch(() => {}) : Promise.resolve();
+    const hint = setTimeout(() => onHint && onHint('perm'), 2500);
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    } catch (e) { clearTimeout(hint); this._closeCtx(); throw e; }
+    clearTimeout(hint);
+    if (this.cancelled) { this._teardown(); const e = new Error('cancel'); e.name = 'Cancelled'; throw e; }
+    await Promise.race([resumed, sleep(1200)]);
+    if (this.ctx && this.ctx.state !== 'running') { try { await Promise.race([this.ctx.resume(), sleep(800)]); } catch (e) {} }
+    this.chunks = []; this.len = 0; this.active = true;
+    if (this.ctx && this.ctx.state === 'running') {
+      this.mode = 'pcm';
+      this.rate = this.ctx.sampleRate;
+      this.src = this.ctx.createMediaStreamSource(this.stream);
+      this.proc = this.ctx.createScriptProcessor(4096, 1, 1);
+      this.silent = this.ctx.createGain(); this.silent.gain.value = 0;
+      this.proc.onaudioprocess = e => {
+        if (!this.active) return;
+        const d = e.inputBuffer.getChannelData(0);
+        this.chunks.push(new Float32Array(d)); this.len += d.length;
+        if (onLevel) { let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i] * d[i]; onLevel(Math.min(1, Math.sqrt(s / (d.length / 4)) * 5)); }
+      };
+      this.src.connect(this.proc); this.proc.connect(this.silent); this.silent.connect(this.ctx.destination);
+    } else {
+      if (typeof MediaRecorder !== 'function') { this._teardown(); const e = new Error('noaudio'); e.name = 'NoAudioEngine'; throw e; }
+      this.mode = 'mr'; this._closeCtx();
+      this.parts = [];
+      this.mr = new MediaRecorder(this.stream);
+      this.mr.ondataavailable = e => { if (e.data && e.data.size) this.parts.push(e.data); };
+      this.mr.start(250);
+      if (onLevel) { let t = 0; this.fakeLvl = setInterval(() => onLevel(0.25 + 0.2 * Math.abs(Math.sin(t += .5))), 120); }
+    }
+  }
+  _closeCtx() { try { this.ctx && this.ctx.close(); } catch (e) {} this.ctx = null; }
+  _teardown() {
+    this.active = false; clearInterval(this.fakeLvl);
+    try { this.src && this.src.disconnect(); this.proc && this.proc.disconnect(); this.silent && this.silent.disconnect(); } catch (e) {}
+    try { this.stream && this.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    this._closeCtx();
+  }
+  async stop() {
+    if (this.mode === 'mr') {
+      await new Promise(res => { this.mr.onstop = res; try { this.mr.stop(); } catch (e) { res(); } });
+      this._teardown();
+      const blob = new Blob(this.parts, { type: this.mr.mimeType || 'audio/webm' }); this.parts = [];
+      const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+      const buf = await new OAC(1, 16000, 16000).decodeAudioData(await blob.arrayBuffer());
+      let data = buf.getChannelData(0);
+      if (buf.numberOfChannels > 1) { const r = buf.getChannelData(1); data = data.map((v, i) => (v + r[i]) / 2); }
+      return processAudio(data, buf.sampleRate);
+    }
+    this._teardown();
+    const all = new Float32Array(this.len); let o = 0;
+    for (const c of this.chunks) { all.set(c, o); o += c.length; }
+    this.chunks = [];
+    return processAudio(all, this.rate);
+  }
+  cancel() { this.cancelled = true; if (this.mr && this.mr.state !== 'inactive') { try { this.mr.stop(); } catch (e) {} } this._teardown(); this.chunks = []; this.parts = []; }
+}
+
+function processAudio(samples, rate) {
+  const TARGET = 16000, ratio = rate / TARGET;
+  const outLen = Math.floor(samples.length / ratio);
+  const out = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) { // reamostragem com média (filtro anti-aliasing simples)
+    const a = Math.floor(i * ratio), b = Math.min(samples.length, Math.max(a + 1, Math.floor((i + 1) * ratio)));
+    let s = 0; for (let j = a; j < b; j++) s += samples[j]; out[i] = s / (b - a);
+  }
+  // corta silêncio do começo e do fim (janelas de 20 ms), deixando 0,4 s de margem
+  const F = 320, nF = Math.floor(outLen / F), rms = new Float32Array(nF); let maxR = 0;
+  for (let f = 0; f < nF; f++) { let s = 0; for (let j = f * F; j < (f + 1) * F; j++) s += out[j] * out[j]; rms[f] = Math.sqrt(s / F); if (rms[f] > maxR) maxR = rms[f]; }
+  const thr = Math.max(0.006, maxR * 0.08);
+  let first = -1, last = -1;
+  for (let f = 0; f < nF; f++) if (rms[f] > thr) { if (first < 0) first = f; last = f; }
+  if (first < 0 || maxR < 0.004) return { empty: true, dur: outLen / TARGET, speechDur: 0 };
+  const pad = 20, start = Math.max(0, (first - pad) * F), end = Math.min(outLen, (last + 1 + pad) * F);
+  const seg = out.subarray(start, end);
+  let peak = 0; for (let i = 0; i < seg.length; i++) { const a = Math.abs(seg[i]); if (a > peak) peak = a; }
+  const gain = peak > 0 && peak < 0.5 ? Math.min(8, 0.7 / peak) : 1; // normaliza gravações baixas
+  const pcm = new Int16Array(seg.length);
+  for (let i = 0; i < seg.length; i++) { const v = clamp(seg[i] * gain, -1, 1); pcm[i] = v < 0 ? v * 0x8000 : v * 0x7fff; }
+  return { empty: false, pcm, wav: encodeWav(pcm, TARGET), dur: seg.length / TARGET, speechDur: (last - first + 1) * F / TARGET };
+}
+
+function encodeWav(pcm, rate) {
+  const buf = new ArrayBuffer(44 + pcm.length * 2), v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data');
+  v.setUint32(40, pcm.length * 2, true); new Int16Array(buf, 44).set(pcm);
+  return buf;
+}
+
+function micError(err) {
+  if (!window.isSecureContext || err.name === 'InsecureContext') return 'O microfone só funciona quando a página é aberta por um endereço https://.';
+  if (err.name === 'NotAllowedError' || err.name === 'SecurityError') return 'O microfone foi bloqueado. Libere o acesso ao microfone nas permissões do navegador e tente de novo.';
+  if (err.name === 'NotFoundError') return 'Nenhum microfone encontrado neste aparelho.';
+  if (err.name === 'NoAudioEngine') return 'Este navegador não conseguiu gravar áudio. Tente pelo Chrome ou Edge atualizados.';
+  if (err.name === 'NotReadableError') return 'O microfone está sendo usado por outro aplicativo. Feche-o e tente de novo.';
+  return 'Não consegui acessar o microfone (' + (err.name || err.message) + ').';
+}
+
+/* Componente de gravação (usado no celular do aluno e no computador do professor) */
+function mountRecorder(parent, opts) {
+  const el = document.createElement('div'); el.className = 'recorder'; parent.appendChild(el);
+  let rec = new Recorder();
+  let state = 'idle', result = null, url = null, tick = null, busy = false;
+  const api = {
+    el,
+    destroy() { clearInterval(tick); if (state === 'rec') rec.cancel(); if (url && !api.keepUrl) URL.revokeObjectURL(url); el.remove(); state = 'dead'; }
+  };
+  function draw() {
+    if (state === 'idle') el.innerHTML = `<button class="rec-btn" data-r="start"><span class="rec-ico">🎙️</span><span>Gravar</span></button><p class="hint">Toque, fale a frase e toque de novo para parar.<br><small>Máximo de ${opts.maxSec} segundos.</small></p>`;
+    else if (state === 'rec') el.innerHTML = `<button class="rec-btn on" data-r="stop"><span class="rec-ico">⏹️</span><span>Parar</span></button><div class="meter"><i class="lvl"></i></div><p class="hint"><b class="rtime">0.0</b> s</p>`;
+    else if (state === 'review') el.innerHTML = `<p class="hint">Ouça antes de enviar:</p><audio controls src="${url}"></audio><div class="row center wrap-row"><button class="btn" data-r="redo">🔁 Regravar</button><button class="btn gold big" data-r="send">📤 Enviar</button></div>`;
+    else if (state === 'wait') el.innerHTML = `<p class="hint"><i class="spin"></i> Um instante…</p>`;
+    else if (state === 'perm') el.innerHTML = `<p class="hint"><i class="spin"></i> Aguardando o microfone…</p>
+      <div class="warn small" style="max-width:420px;margin:0">🎤 O navegador deve estar pedindo permissão para usar o microfone — procure a janelinha perto da barra de endereço (ou o ícone 🎤/🔒 nela) e clique em <b>Permitir</b>.</div>
+      <button class="btn sm" data-r="cancel">Cancelar</button>`;
+  }
+  async function stop() {
+    if (state !== 'rec') return;
+    clearInterval(tick); busy = true; state = 'wait'; draw();
+    try { result = await rec.stop(); } catch (e) { result = { empty: true }; }
+    busy = false;
+    if (result.empty || (result.speechDur || 0) < 0.25) { state = 'idle'; draw(); toast('Não ouvi sua voz. Fale mais perto do microfone e tente de novo.', 'err', 5000); return; }
+    url = URL.createObjectURL(new Blob([result.wav], { type: 'audio/wav' }));
+    state = 'review'; draw();
+  }
+  el.addEventListener('click', async e => {
+    const b = e.target.closest('[data-r]'); if (!b) return;
+    const a = b.dataset.r;
+    if (a === 'cancel') { rec.cancel(); busy = false; state = 'idle'; draw(); return; }
+    if (busy) return;
+    if (a === 'start') {
+      rec = new Recorder(); busy = true; state = 'wait'; draw();
+      try {
+        await rec.start(v => { const l = el.querySelector('.lvl'); if (l) l.style.width = (v * 100) + '%'; }, () => { if (state === 'wait') { state = 'perm'; draw(); } });
+        if (state !== 'wait' && state !== 'perm') { rec.cancel(); busy = false; return; } // cancelado enquanto esperava
+        state = 'rec'; draw();
+        const t0 = Date.now();
+        tick = setInterval(() => { const s = (Date.now() - t0) / 1000; const t = el.querySelector('.rtime'); if (t) t.textContent = s.toFixed(1); if (s >= opts.maxSec) stop(); }, 100);
+      } catch (err) { if (err.name !== 'Cancelled') { state = 'idle'; draw(); toast(micError(err), 'err', 7000); } }
+      busy = false;
+    } else if (a === 'stop') stop();
+    else if (a === 'redo') { if (url) URL.revokeObjectURL(url); url = null; result = null; state = 'idle'; draw(); }
+    else if (a === 'send') {
+      busy = true;
+      const ok = await opts.onSubmit(result, url);
+      busy = false;
+      if (ok !== false) { api.keepUrl = true; state = 'sent'; }
+    }
+  });
+  draw();
+  return api;
+}
+
+/* =====================================================================
+   RESULTADOS: cores por palavra, notas parciais e dicas
+   ===================================================================== */
+const TIP_RULES = {
+  fr: [
+    [/(an|am|en|em)([^aeiouyéèêàâîôûnm]|$)/, "som nasal 'an/en': um 'ã' bem aberto, sem fechar a boca no 'n'."],
+    [/(on|om)([^aeiouyéèêàâîôûnm]|$)/, "som nasal 'on': lábios arredondados, um 'õ' sem pronunciar o 'n'."],
+    [/(in|im|ain|ein|un|um)([^aeiouyéèêàâîôûnm]|$)/, "som nasal 'in/ain/un': parecido com 'ẽ' aberto — não diga 'in' como em português."],
+    [/(^|[^oaeqg])[uû]/, "'u' francês: faça bico como para dizer 'u', mas diga 'i'."],
+    [/o[uùû]/, "'ou' se pronuncia como o 'u' do português (vous = 'vu')."],
+    [/eu|œu|œ/, "'eu': diga 'ê' com os lábios arredondados."],
+    [/oi/, "'oi' soa como 'uá' (moi = 'muá')."],
+    [/r/, "o 'r' francês vem da garganta, suave — parecido com o 'r' carioca de 'carro'."],
+    [/.{2,}[tdsxzp]$/, 'a consoante final geralmente é muda (petit = "peti").'],
+    [/[éèê]/, "'é' é fechado (como 'ê'); 'è' e 'ê' são abertos (como 'é')."],
+    [/ch/, "'ch' soa como o 'x' de 'xícara'."],
+    [/gn/, "'gn' soa como 'nh'."],
+    [/^h/, "o 'h' é mudo."]
+  ],
+  es: [
+    [/rr|^r|[nls]r/, "'rr' e 'r' no começo da palavra: vibração forte da ponta da língua — não é o 'r' de garganta."],
+    [/[aeiouáéíóú]r[aeiouáéíóú]/, "'r' entre vogais: um toque rápido da ponta da língua, como em 'caro'."],
+    [/r($|[^aeiouáéíóúr])/, "'r' no fim da sílaba (hablar, tarde): toque da ponta da língua, nunca aspirado."],
+    [/j|g[eéií]/, "'j' e 'ge/gi': som forte de garganta, como um 'rr' carioca raspado."],
+    [/[bv]/, "'b' e 'v' têm o mesmo som: lábios juntos, sem encostar os dentes no lábio."],
+    [/ll|y[aeiouáéíóú]/, "'ll' e 'y' antes de vogal soam como um 'i' forte."],
+    [/ñ/, "'ñ' soa como 'nh'."],
+    [/z|c[eéií]/, "'z' e 'ce/ci': na Espanha, língua entre os dentes (como o 'th' do inglês); na América Latina, som de 's'."],
+    [/[td][ií]/, "'ti' e 'di' não viram 'tchi/dji' como no português do Brasil."],
+    [/l$/, "o 'l' final é 'l' de verdade, não vira 'u' (sol, não 'sou')."],
+    [/[oe]$/, "final '-o' é 'o' mesmo (não 'u') e final '-e' é 'e' (não 'i')."],
+    [/[aeiouáéíóú][mn]/, "não nasalize a vogal antes de 'm/n' (con, não 'cõ')."],
+    [/^h/, "o 'h' é mudo."]
+  ]
+};
+function tipsFor(ev, lang) {
+  const out = [], seen = new Set();
+  const rules = TIP_RULES[lang] || [];
+  const low = ev.words.filter(w => w.e === 'Mispronunciation' || (w.e === 'None' && w.s < 70)).sort((a, b) => a.s - b.s);
+  for (const w of low) {
+    const word = String(w.w || '').toLowerCase();
+    for (const [re, tip] of rules) {
+      if (out.length >= 3) break;
+      if (re.test(word) && !seen.has(tip)) { seen.add(tip); out.push(`<b>${esc(w.w)}</b>: ${esc(tip)}`); break; }
+    }
+    if (out.length >= 3) break;
+  }
+  const om = ev.words.filter(w => w.e === 'Omission').map(w => w.w);
+  const ins = ev.words.filter(w => w.e === 'Insertion').map(w => w.w);
+  if (om.length) out.push(`Palavras que não apareceram na gravação: <b>${esc(om.join(', '))}</b>.`);
+  if (ins.length) out.push(`Palavras a mais: <b>${esc(ins.join(', '))}</b>.`);
+  if (ev.flu < 60 && ev.words.length) out.push('Fluência: tente falar a frase de uma vez, sem pausas longas entre as palavras.');
+  return out;
+}
+function wordsHTML(words) {
+  return words.map(w => {
+    const e = w.e, s = Math.round(w.s);
+    const cls = e === 'Omission' ? 'w-om' : e === 'Insertion' ? 'w-ins' : s >= 80 ? 'w-ok' : s >= 60 ? 'w-mid' : 'w-bad';
+    const title = e === 'Omission' ? 'não foi dita' : e === 'Insertion' ? 'palavra a mais' : `precisão ${s}/100` + (e === 'Mispronunciation' ? ' · pronúncia com erro' : '');
+    return `<span class="w ${cls}" title="${esc(title)}">${esc(w.w)}${e === 'Omission' || e === 'Insertion' ? '' : `<small>${s}</small>`}</span>`;
+  }).join(' ');
+}
+function subHTML(label, v) { v = Math.round(v || 0); return `<div class="subc ${scoreCls(v)}"><span>${label}</span><b>${v}</b><i style="--v:${v}%"></i></div>`; }
+function evalHTML(ev, lang) {
+  if (ev.nomatch) return `<div class="warn">🤔 O Azure não reconheceu fala nessa gravação (muito baixa, com muito ruído ou com outra frase).</div>`;
+  const tips = tipsFor(ev, lang);
+  return `<div class="subs">${subHTML('Pronúncia geral', ev.pron)}${subHTML('Precisão', ev.acc)}${subHTML('Fluência', ev.flu)}${subHTML('Completude', ev.comp)}</div>
+    <div class="words">${wordsHTML(ev.words)}</div>
+    <div class="legend"><span style="--c:#22c55e">boa (80+)</span><span style="--c:#f59e0b">atenção (60–79)</span><span style="--c:#ef4444">errada (&lt;60)</span><span style="--c:#64748b">não dita / a mais</span></div>
+    ${tips.length ? `<ul class="tips">${tips.map(t => `<li>${t}</li>`).join('')}</ul><p class="small muted">As dicas são sugestões automáticas a partir da escrita das palavras com nota mais baixa.</p>` : ''}
+    ${ev.text ? `<p class="small muted">O Azure entendeu: “${esc(ev.text)}”</p>` : ''}`;
+}
+function langBadge(l) { return `<span class="pill ${l}">${LANGS[l].flag} ${LANGS[l].label}</span>`; }
+function charBanner(c) {
+  return `<div class="char"><div class="ci">${esc(c.icon)}</div><div><div class="ck">🎭 Desafio de personagem · vale bônus</div><b>${esc(c.name)}</b><div class="small">${esc(c.guide)}</div></div></div>`;
+}
+
+/* ---------- ações por clique (delegação) ---------- */
+const ACT = {};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const f = ACT[el.dataset.act]; if (f) { e.preventDefault(); f(el, e); }
+});
+ACT['close-modal'] = () => closeModal();
+ACT['toggle-tr'] = () => { const t = $('#tr'); if (t) t.classList.toggle('hidden'); };
+
+const params = new URLSearchParams(location.search);
+const IS_STUDENT = params.has('sala') || params.has('aluno');
+
+/* =====================================================================
+   MODO PROFESSOR
+   ===================================================================== */
+const H = {
+  cfg: Object.assign({ region: 'brazilsouth', frLocale: 'fr-FR', esLocale: 'es-ES' }, store.get('fpd_cfg', {})),
+  remember: store.get('fpd_remember', true),
+  key: store.get('fpd_key', ''),
+  relay: validRelay(store.get('fpd_relay2', null)),
+  setup: Object.assign({ fr: '', es: '', langMode: 'alt', rounds: 5, characters: false, genLevel: 'medio' }, store.get('fpd_setup', {})),
+  pin: null, peer: null, peerState: 'off', peerRetry: null,
+  players: new Map(), seq: 0,
+  rounds: [], ri: -1, phase: 'setup', open: false,
+  queue: [], busy: false, authFailed: false, detailId: null
+};
+
+function usageKey() { const d = new Date(); return 'fpd_usage_' + d.getFullYear() + '-' + (d.getMonth() + 1); }
+function addUsage(sec) { store.set(usageKey(), store.get(usageKey(), 0) + sec); renderHostHeader(); }
+function usageMin() { return store.get(usageKey(), 0) / 60; }
+
+function renderHostHeader() {
+  const u = usageMin();
+  $('#hdr').innerHTML = `
+    <span class="pill ${u > FREE_MIN * .85 ? 'dead' : ''}" title="Minutos de áudio enviados ao Azure neste mês (contados neste navegador)">📊 ${u < 10 ? u.toFixed(1) : u.toFixed(0)}/${FREE_MIN} min</span>
+    <button class="btn sm ${H.key ? '' : 'gold'}" data-act="settings">⚙️ Azure${H.key ? '' : ' (configurar)'}</button>
+    <button class="btn sm" data-act="mute" title="Som">${muted ? '🔇' : '🔊'}</button>`;
+}
+ACT.mute = () => { muted = !muted; store.set('fpd_muted', muted); IS_STUDENT ? renderConn() : renderHostHeader(); };
+
+/* ----- tela 1: configuração da aula ----- */
+function saveSetup() { store.set('fpd_setup', H.setup); }
+function readSetup() {
+  const g = id => $(id);
+  if (!g('#t-fr')) return;
+  H.setup.fr = g('#t-fr').value; H.setup.es = g('#t-es').value;
+  H.setup.langMode = g('#o-lang').value; H.setup.rounds = clamp(parseInt(g('#o-rounds').value) || 5, 1, 30);
+  H.setup.characters = g('#o-char').checked; saveSetup();
+}
+function hostSetup() {
+  H.phase = 'setup'; closeModal();
+  const s = H.setup;
+  app.innerHTML = `
+  <section class="panel hero">
+    <div class="mascot">🦜</div>
+    <div>
+      <div class="kicker">💬 "¡Salut, amigos!"</div>
+      <h2>Duelo de Vozes com avaliação de pronúncia de verdade</h2>
+      <p class="muted" style="margin:0">Os alunos entram pelo celular com o QR code, todos gravam a mesma frase e o Azure (Microsoft) avalia a pronúncia palavra por palavra. Você escuta cada gravação e dá a palavra final na nota.</p>
+    </div>
+  </section>
+  ${!H.key ? `<div class="warn">⚠️ Falta configurar a chave do Azure. <button class="btn sm gold" data-act="settings">Configurar agora</button><br><small>Sem ela o jogo funciona, mas as notas terão de ser dadas manualmente.</small></div>` : ''}
+  ${location.protocol === 'file:' ? `<div class="warn">📁 Este arquivo foi aberto direto do computador. Assim os celulares não conseguem entrar na sala nem usar o microfone: publique-o num endereço https:// (ex.: GitHub Pages). Enquanto isso, dá para jogar só com jogadores no computador.</div>` : ''}
+  <section class="panel">
+    <h3>✨ Gerar frases por tema</h3>
+    <div class="gen">
+      <input id="g-theme" maxlength="80" placeholder="Tema da aula — ex.: comida, viagem, escola, família…">
+      <select id="g-level">${LEVELS.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>
+      <button class="btn gold" data-act="gen-theme">✨ Gerar</button>
+    </div>
+    <div id="gen-msg"></div>
+    <div class="row wrap-row" style="margin-top:10px"><span class="small muted">Temas prontos:</span>
+      ${THEMES.map((t, i) => `<button class="btn sm ghost" data-act="theme-chip" data-i="${i}">${esc(t.name)}</button>`).join('')}
+    </div>
+    <p class="small muted" style="margin-bottom:0">Outro tema? <a href="#" data-act="ai-prompt">🤖 Gerar com IA (Claude ou ChatGPT)</a> — o site monta o pedido, você cola na IA e traz a resposta de volta.</p>
+  </section>
+  <section class="panel">
+    <div class="row between wrap-row">
+      <h3>📝 Frases da aula</h3>
+      <div class="row wrap-row"><span class="small muted">Trava-línguas e exemplos:</span>
+        ${LEVELS.map(([v, l]) => `<button class="btn sm" data-act="bank" data-lv="${v}">${l}</button>`).join('')}
+      </div>
+    </div>
+    <div class="grid2">
+      <div><label class="lbl" for="t-fr">🇫🇷 Frases em francês</label><textarea id="t-fr" placeholder="Bonjour, je m'appelle Marie. | Olá, eu me chamo Marie.">${esc(s.fr)}</textarea></div>
+      <div><label class="lbl" for="t-es">🇪🇸 Frases em espanhol</label><textarea id="t-es" placeholder="Hola, me llamo Pedro. | Olá, eu me chamo Pedro.">${esc(s.es)}</textarea></div>
+    </div>
+    <p class="small muted">Uma frase por linha. A tradução é opcional: escreva depois de uma barra vertical ( | ). Frases curtas funcionam melhor (até umas 15 palavras). Pode deixar um dos idiomas vazio.</p>
+    <div class="grid3">
+      <div><label class="lbl" for="o-lang">Idiomas nas rodadas</label>
+        <select id="o-lang">
+          <option value="alt">Alternar francês e espanhol</option>
+          <option value="mix">Sortear entre os dois</option>
+          <option value="fr">Só francês</option>
+          <option value="es">Só espanhol</option>
+        </select></div>
+      <div><label class="lbl" for="o-rounds">Número de rodadas</label><input id="o-rounds" type="number" min="1" max="30" value="${s.rounds}"></div>
+      <div><label class="lbl">Máscaras de personagem</label>
+        <label class="check"><input type="checkbox" id="o-char" ${s.characters ? 'checked' : ''}> Sortear um personagem por rodada (o professor pode dar +10 de bônus pela interpretação)</label></div>
+    </div>
+    <div style="height:16px"></div>
+    <button class="btn gold big full" data-act="open-room">🚪 ${H.players.size ? 'Voltar para a sala' : 'Abrir sala'}</button>
+  </section>
+  <p class="center small muted">É aluno? <a href="?aluno=1">Entrar com o PIN da sala</a></p>`;
+  $('#o-lang').value = s.langMode; $('#g-level').value = s.genLevel || 'medio';
+  $('#g-level').addEventListener('change', () => { H.setup.genLevel = $('#g-level').value; saveSetup(); });
+  $('#g-theme').addEventListener('keydown', e => { if (e.key === 'Enter') ACT['gen-theme'](); });
+  ['#t-fr', '#t-es', '#o-lang', '#o-rounds', '#o-char'].forEach(id => $(id).addEventListener('change', readSetup));
+  ['#t-fr', '#t-es'].forEach(id => $(id).addEventListener('input', () => { clearTimeout(H.saveT); H.saveT = setTimeout(readSetup, 500); }));
+}
+ACT.bank = el => {
+  const b = BANK[el.dataset.lv];
+  const fr = $('#t-fr'), es = $('#t-es');
+  if ((fr.value.trim() || es.value.trim()) && !confirm('Substituir as frases atuais pelos exemplos?')) return;
+  fr.value = b.fr.join('\n'); es.value = b.es.join('\n'); readSetup();
+};
+
+/* ----- gerador de frases por tema (banco embutido, sem IA) ----- */
+const norm = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+function matchThemes(q) {
+  const n = norm(q); if (!n.trim()) return [];
+  const toks = n.split(/[^a-z0-9]+/).filter(Boolean);
+  const hit = k => k.includes(' ') ? n.includes(k) : toks.some(w => w.startsWith(k)); // início de palavra: "escola" não casa com "ola"
+  return THEMES.map(t => ({ t, sc: t.kw.filter(hit).length + (n.includes(norm(t.name)) ? 3 : 0) }))
+    .filter(x => x.sc > 0).sort((a, b) => b.sc - a.sc).map(x => x.t);
+}
+function needPerLang() {
+  const n = clamp(+H.setup.rounds || 5, 1, 30), m = H.setup.langMode;
+  if (m === 'fr') return { fr: n, es: 0 };
+  if (m === 'es') return { fr: 0, es: n };
+  return { fr: Math.ceil(n / 2), es: Math.ceil(n / 2) };
+}
+function genFromThemes(themes, level) {
+  const lv = LEVELS.map(x => x[0]), i = lv.indexOf(level);
+  const order = [level]; for (let d = 1; d < lv.length; d++) { if (lv[i - d]) order.push(lv[i - d]); if (lv[i + d]) order.push(lv[i + d]); }
+  const need = needPerLang(), out = { fr: [], es: [] }; let borrowed = false;
+  for (const lang of ['fr', 'es']) {
+    for (const l of order) {
+      if (l !== level && out[lang].length >= Math.max(need[lang], 1)) break;
+      const add = shuffle(themes.flatMap(t => t[lang][l] || []));
+      if (l !== level && add.length) borrowed = true;
+      out[lang].push(...add);
+    }
+  }
+  return { fr: out.fr, es: out.es, borrowed };
+}
+function fillPhrases(fr, es) {
+  const tf = $('#t-fr'), te = $('#t-es');
+  if ((tf.value.trim() || te.value.trim()) && !confirm('Substituir as frases atuais pelas novas?')) return false;
+  tf.value = fr.join('\n'); te.value = es.join('\n'); readSetup(); return true;
+}
+ACT['gen-theme'] = (el, e, forced) => {
+  readSetup();
+  const q = $('#g-theme').value, level = $('#g-level').value, msg = $('#gen-msg');
+  if (!q.trim()) { msg.innerHTML = `<p class="small" style="color:#fde68a">Digite um tema ou escolha um dos temas prontos abaixo.</p>`; return; }
+  const themes = forced || matchThemes(q);
+  if (!themes.length) {
+    msg.innerHTML = `<div class="warn small" style="margin:10px 0 0">Não tenho frases prontas sobre “${esc(q)}”. Escolha um dos temas prontos abaixo ou use <a href="#" data-act="ai-prompt">🤖 Gerar com IA</a> para qualquer tema.</div>`;
+    return;
+  }
+  const g = genFromThemes(themes, level);
+  if (!fillPhrases(g.fr, g.es)) return;
+  const lvName = LEVELS.find(x => x[0] === level)[1];
+  msg.innerHTML = `<p class="small" style="color:#bbf7d0">✅ Frases de <b>${esc(themes.map(t => t.name).join(' + '))}</b> (${lvName}) colocadas abaixo.${g.borrowed ? ' Para completar as rodadas, entraram algumas de níveis vizinhos.' : ''} Pode editar à vontade.</p>`;
+};
+ACT['theme-chip'] = el => { const t = THEMES[+el.dataset.i]; $('#g-theme').value = t.name; ACT['gen-theme'](null, null, [t]); };
+
+/* ----- tema livre: o site monta o pedido para uma IA de chat ----- */
+const LEVEL_DESC = {
+  facil: 'Fácil: frases curtas (3 a 6 palavras), vocabulário do dia a dia.',
+  medio: 'Médio: frases de 6 a 10 palavras, vocabulário comum.',
+  dificil: "Difícil: 8 a 14 palavras, com sons difíceis para brasileiros (francês: vogais nasais, 'u', 'r' e consoantes finais mudas; espanhol: 'rr', 'j', 'll', 'z' e 'b/v').",
+  insano: 'Insano: 12 a 20 palavras, bem desafiadoras, no estilo trava-língua, cheias de sons difíceis para brasileiros.'
+};
+function aiPromptText(theme, level) {
+  const need = needPerLang(), n = x => Math.max(x + 2, 5);
+  const langs = [need.fr ? `${n(need.fr)} frases em francês` : '', need.es ? `${n(need.es)} frases em espanhol` : ''].filter(Boolean).join(' e ');
+  return `Crie frases para um jogo de pronúncia em sala de aula com alunos brasileiros.
+Tema: ${theme || '(escreva o tema aqui)'}
+Nível: ${LEVEL_DESC[level]}
+Quero ${langs}, corretas e naturais, cada uma com a tradução para o português do Brasil.
+Responda SOMENTE com as linhas abaixo, uma frase por linha, sem numeração, sem títulos e sem comentários:
+${need.fr ? 'FR: frase em francês | tradução em português\n' : ''}${need.es ? 'ES: frase em espanhol | tradução em português' : ''}`.trim();
+}
+ACT['ai-prompt'] = () => {
+  readSetup();
+  const theme = ($('#g-theme') && $('#g-theme').value.trim()) || '', level = ($('#g-level') && $('#g-level').value) || 'medio';
+  const m = openModal(`
+    <div class="row between"><h3>🤖 Gerar frases com IA</h3><button class="btn sm ghost" data-act="close-modal">✕</button></div>
+    <p class="small muted" style="margin-top:0"><b>1.</b> Copie o pedido abaixo (ajuste o tema se quiser). <b>2.</b> Cole numa IA de chat, como o <a href="https://claude.ai" target="_blank" rel="noopener">Claude</a> ou o <a href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT</a>. <b>3.</b> Copie a resposta e cole no segundo campo.</p>
+    <label class="lbl" for="ai-q">Pedido para a IA</label>
+    <textarea id="ai-q" style="min-height:190px">${esc(aiPromptText(theme, level))}</textarea>
+    <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn sm" data-act="ai-copy">📋 Copiar pedido</button></div>
+    <label class="lbl" for="ai-a">Resposta da IA</label>
+    <textarea id="ai-a" style="min-height:150px" placeholder="FR: … | …&#10;ES: … | …"></textarea>
+    <div id="ai-msg"></div>
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn gold" data-act="ai-use">✅ Usar estas frases</button></div>`);
+  if (!theme) m.querySelector('#ai-q').focus();
+};
+ACT['ai-copy'] = () => {
+  const t = $('#ai-q'); t.select();
+  (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).then(() => toast('Pedido copiado!', 'ok'), () => { try { document.execCommand('copy'); toast('Pedido copiado!', 'ok'); } catch (e) { toast('Selecione o texto e copie com Ctrl+C.'); } });
+};
+ACT['ai-use'] = () => {
+  const fr = [], es = [];
+  $('#ai-a').value.split(/\r?\n/).forEach(line => {
+    const m = line.replace(/\*\*/g, '').match(/^\s*(?:[-*•]|\d+[.)])?\s*(FR|ES|FRANC[EÊ]S|ESPANHOL|FRENCH|SPANISH)\s*[:\-–—]\s*(.+)$/i);
+    if (!m) return;
+    const tag = norm(m[1]); (tag.startsWith('fr') ? fr : es).push(m[2].trim());
+  });
+  if (!fr.length && !es.length) { $('#ai-msg').innerHTML = `<div class="err-box" style="margin-top:10px">Não encontrei linhas no formato “FR: frase | tradução” ou “ES: frase | tradução”. Confira a resposta colada.</div>`; return; }
+  closeModal();
+  if (fillPhrases(fr, es)) toast(`${fr.length + es.length} frases da IA colocadas na lista. Revise antes de começar.`, 'ok', 5000);
+};
+
+function parseLines(txt, lang) {
+  return String(txt || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => {
+    const i = l.indexOf('|');
+    const text = (i >= 0 ? l.slice(0, i) : l).trim().replace(/^["“”«»]+|["“”«»]+$/g, '').trim();
+    const tr = i >= 0 ? l.slice(i + 1).trim() : '';
+    return { lang, text: text.slice(0, 220), tr: tr.slice(0, 220) };
+  }).filter(x => x.text);
+}
+function buildRounds() {
+  const fr = shuffle(parseLines(H.setup.fr, 'fr')), es = shuffle(parseLines(H.setup.es, 'es'));
+  let pool = [];
+  const m = H.setup.langMode;
+  if (m === 'fr') pool = fr;
+  else if (m === 'es') pool = es;
+  else if (m === 'mix') pool = shuffle(fr.concat(es));
+  else {
+    const [a, b] = Math.random() < .5 ? [fr, es] : [es, fr];
+    for (let i = 0; i < Math.max(a.length, b.length); i++) { if (a[i]) pool.push(a[i]); if (b[i]) pool.push(b[i]); }
+  }
+  const n = clamp(+H.setup.rounds || 5, 1, 30);
+  let lastC = -1;
+  return { rounds: pool.slice(0, n).map(x => {
+    let character = null;
+    if (H.setup.characters) { let k; do { k = Math.floor(Math.random() * CHARACTERS.length); } while (k === lastC); lastC = k; character = CHARACTERS[k]; }
+    return Object.assign({}, x, { character });
+  }), available: pool.length, wanted: n };
+}
+ACT['open-room'] = () => {
+  readSetup();
+  const b = buildRounds();
+  if (!b.rounds.length) return toast('Escreva pelo menos uma frase no(s) idioma(s) escolhido(s).', 'err');
+  if (b.available < b.wanted) toast(`Só há ${b.available} frase(s) disponíveis — o jogo terá ${b.available} rodada(s).`);
+  H.rounds = b.rounds;
+  hostLobby(); ensurePeer();
+};
+
+/* ----- conexão (PeerJS): o computador do professor vira a "sala" ----- */
+function roomURL() { return location.origin + location.pathname + '?sala=' + H.pin + (H.relay ? '&r=' + encodeRelay(H.relay) : ''); }
+function newPin() { return String(Math.floor(1000 + Math.random() * 9000)); }
+async function ensurePeer() {
+  if ((H.peer && !H.peer.destroyed) || H.peerStarting) return;
+  if (typeof Peer !== 'function') { H.peerState = 'error'; renderRoomInfo(); return; }
+  if (!H.pin) H.pin = newPin();
+  H.peerState = 'connecting'; renderRoomInfo();
+  H.peerStarting = true;
+  let opts; try { opts = await peerOptions(H.relay); } finally { H.peerStarting = false; }
+  const peer = new Peer(PEER_PREFIX + H.pin, opts);
+  H.peer = peer;
+  peer.on('open', () => { H.peerState = 'open'; renderRoomInfo(); });
+  peer.on('connection', conn => {
+    conn.on('data', d => onStudentMsg(conn, d));
+    conn.on('close', () => markOffline(conn));
+    conn.on('error', () => markOffline(conn));
+  });
+  // Se cair só a ligação com o servidor de salas, as conexões com os alunos continuam;
+  // tentamos reconectar sem destruir nada.
+  peer.on('disconnected', () => { if (!peer.destroyed) { H.peerState = 'connecting'; renderRoomInfo(); hostRetry(peer, 1500); } });
+  peer.on('error', err => {
+    if (err.type === 'peer-unavailable') return;
+    if (err.type === 'unavailable-id') {
+      try { peer.destroy(); } catch (e) {}
+      const hasRemote = [...H.players.values()].some(p => !p.local);
+      if (!hasRemote) H.pin = newPin(); // PIN já usado por outra sala: sorteia outro
+      clearTimeout(H.peerRetry); H.peerRetry = setTimeout(ensurePeer, hasRemote ? 5000 : 200);
+      return;
+    }
+    H.peerState = 'error'; renderRoomInfo(); hostRetry(peer, 5000);
+  });
+}
+function hostRetry(peer, ms) {
+  clearTimeout(H.peerRetry);
+  H.peerRetry = setTimeout(() => {
+    if (H.peer !== peer) return;
+    if (peer.destroyed) ensurePeer();
+    else if (peer.disconnected) { try { peer.reconnect(); } catch (e) {} hostRetry(peer, 8000); }
+    else { H.peerState = 'open'; renderRoomInfo(); }
+  }, ms);
+}
+function sendTo(p, msg) { if (p && p.conn && p.conn.open) { try { p.conn.send(msg); } catch (e) {} } }
+function playerByConn(conn) { return conn.playerId ? H.players.get(conn.playerId) : null; }
+function markOffline(conn) { const p = playerByConn(conn); if (p && p.conn === conn) { p.online = false; refreshPlayers(); } }
+
+function cleanName(n) { return String(n || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20); }
+function uniqueName(name, exceptId) {
+  const taken = new Set([...H.players.values()].filter(p => p.id !== exceptId).map(p => p.name.toLowerCase()));
+  if (!taken.has(name.toLowerCase())) return name;
+  for (let i = 2; ; i++) { const c = (name.slice(0, 17) + ' ' + i); if (!taken.has(c.toLowerCase())) return c; }
+}
+function addPlayer({ cid, name, avatar, local }) {
+  const id = 'p' + (++H.seq);
+  const p = { id, cid, name: uniqueName(cleanName(name) || 'Aluno', id), avatar: AVATARS.includes(avatar) ? avatar : AVATARS[H.seq % AVATARS.length], local: !!local, conn: null, online: !!local, res: {} };
+  H.players.set(id, p);
+  return p;
+}
+
+function onStudentMsg(conn, d) {
+  if (!d || typeof d !== 'object') return;
+  if (d.t === 'join') {
+    const cid = String(d.cid || '').slice(0, 48);
+    let p = [...H.players.values()].find(x => !x.local && x.cid === cid);
+    if (p) { // reconexão
+      if (p.conn && p.conn !== conn) { try { p.conn.close(); } catch (e) {} }
+      p.conn = conn; p.online = true;
+      if (AVATARS.includes(d.avatar)) p.avatar = d.avatar;
+    } else {
+      p = addPlayer({ cid, name: d.name, avatar: d.avatar });
+      p.conn = conn; p.online = true;
+      if (H.phase === 'lobby') beep('ok');
+    }
+    conn.playerId = p.id;
+    sendTo(p, { t: 'welcome', id: p.id, name: p.name, avatar: p.avatar });
+    sendState(p);
+    refreshPlayers();
+    return;
+  }
+  const p = playerByConn(conn); if (!p) return;
+  if (d.t === 'leave') { // aluno saiu da sala pelo botão
+    if (H.phase === 'lobby' || H.phase === 'setup') H.players.delete(p.id); else { p.online = false; p.conn = null; }
+    refreshPlayers(); return;
+  }
+  if (d.t === 'audio') {
+    let wav = d.wav;
+    if (wav instanceof Uint8Array) wav = wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength);
+    if (!(wav instanceof ArrayBuffer) || wav.byteLength < 1000 || wav.byteLength > 1600000) return;
+    if (d.ri !== H.ri || H.phase !== 'round') return;
+    if (!H.open) { sendTo(p, { t: 'closed', ri: H.ri }); return; }
+    const cur = p.res[H.ri];
+    if (cur && cur.status !== 'erro') return; // um envio por rodada
+    acceptSubmission(p, wav);
+  }
+}
+
+function roundMsg(p) {
+  const r = H.rounds[H.ri];
+  return { t: 'round', ri: H.ri, total: H.rounds.length, lang: r.lang, text: r.text, tr: r.tr, character: r.character, open: H.open, submitted: !!(p && p.res[H.ri]) };
+}
+function sendState(p) {
+  if (H.phase === 'setup' || H.phase === 'lobby') sendTo(p, { t: 'lobby' });
+  else if (H.phase === 'round') { sendTo(p, roundMsg(p)); const res = p.res[H.ri]; if (res) sendTo(p, resultMsg(res, H.ri) || { t: 'status', ri: H.ri, status: res.status, pos: queuePos(p) }); }
+  else if (H.phase === 'rank') sendTo(p, rankMsg(p));
+  else if (H.phase === 'podium') sendTo(p, Object.assign(rankMsg(p), { t: 'end' }));
+}
+
+/* ----- tela 2: sala de espera ----- */
+function hostLobby() {
+  H.phase = 'lobby'; closeModal();
+  app.innerHTML = `
+  <div class="lobby">
+    <section class="panel center">
+      <div class="kicker">Entre na sala pelo celular</div>
+      <div id="room-info"></div>
+    </section>
+    <section class="panel">
+      <div class="row between wrap-row"><h3>👥 Jogadores <span id="p-count" class="muted"></span></h3>
+        <button class="btn sm ghost" data-act="to-setup">📝 Frases e opções</button></div>
+      <div id="lobby-players" class="plist"></div>
+      <label class="lbl" for="local-name">Aluno sem celular? Adicione e ele grava neste computador</label>
+      <div class="row"><input id="local-name" maxlength="20" placeholder="Apelido do aluno"><button class="btn" data-act="add-local">➕ Adicionar</button></div>
+      <div style="height:16px"></div>
+      <button id="btn-start" class="btn gold big full" data-act="start">▶️ Começar o duelo</button>
+      <p class="small muted center">${H.rounds.length} rodada(s) preparada(s). Alunos que chegarem atrasados também podem entrar durante o jogo.</p>
+    </section>
+  </div>`;
+  $('#local-name').addEventListener('keydown', e => { if (e.key === 'Enter') ACT['add-local'](); });
+  renderRoomInfo(); refreshPlayers();
+  H.players.forEach(p => sendTo(p, { t: 'lobby' }));
+}
+function renderRoomInfo() {
+  const box = $('#room-info'); if (!box) return;
+  const st = { open: ['on', '🟢 Sala aberta'], connecting: ['off', '🟡 Abrindo a sala…'], error: ['dead', '🔴 Sem conexão com o servidor de salas — tentando de novo'], off: ['off', '…'] }[H.peerState];
+  const file = location.protocol === 'file:';
+  box.innerHTML = `
+    <div class="pin">${H.pin || '····'}</div>
+    ${file ? `<div class="warn small" style="margin-top:12px">Arquivo aberto localmente: publique a página em https:// para os celulares conseguirem entrar.</div>` : `<div class="qr" id="qr"><span class="muted">QR…</span></div>`}
+    <div class="link" id="room-link">${H.pin ? esc(roomURL()) : ''}</div>
+    <div class="row center wrap-row" style="margin-top:10px">
+      <button class="btn sm" data-act="copy-link">📋 Copiar link</button>
+      <span class="pill ${st[0]}">${st[1]}</span>
+    </div>
+    ${H.peerState === 'error' ? `<p class="small muted">Se a internet estiver bloqueando, ainda dá para jogar com jogadores adicionados neste computador.</p>` : ''}
+    <p class="small muted">${H.relay ? '🛰️ Retransmissão Metered ativa (vai junto no QR code).' : '🛰️ Algum celular não entra pelo Wi‑Fi? Configure a retransmissão em <a href="#" data-act="settings">⚙️ Azure</a>.'}</p>`;
+  if (!file && H.pin) loadScript(LIBS.qr).then(() => {
+    const el = $('#qr'); if (!el) return;
+    const q = qrcode(0, 'L'); q.addData(roomURL()); q.make(); el.innerHTML = q.createSvgTag(6, 2);
+  }).catch(() => { const el = $('#qr'); if (el) el.innerHTML = '<span class="small muted">Não consegui gerar o QR code. Use o link abaixo.</span>'; });
+}
+ACT['copy-link'] = () => {
+  const link = roomURL();
+  (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(() => toast('Link copiado!', 'ok'), () => {
+    const i = document.createElement('input'); i.value = link; document.body.appendChild(i); i.select();
+    try { document.execCommand('copy'); toast('Link copiado!', 'ok'); } catch (e) { toast(link); } i.remove();
+  });
+};
+ACT['add-local'] = () => {
+  const inp = $('#local-name'); const name = cleanName(inp.value);
+  if (!name) return toast('Digite o apelido do aluno.', 'err');
+  addPlayer({ cid: 'local-' + Date.now(), name, local: true }); inp.value = ''; refreshPlayers();
+};
+ACT.kick = el => {
+  const p = H.players.get(el.dataset.id); if (!p) return;
+  if (!confirm(`Remover ${p.name} da sala?`)) return;
+  sendTo(p, { t: 'kicked' });
+  setTimeout(() => { try { p.conn && p.conn.close(); } catch (e) {} }, 300);
+  H.players.delete(p.id); refreshPlayers();
+};
+ACT['to-setup'] = () => hostSetup();
+
+function refreshPlayers() {
+  if (H.phase === 'lobby') {
+    const box = $('#lobby-players'); if (!box) return;
+    const ps = [...H.players.values()];
+    $('#p-count').textContent = `(${ps.length})`;
+    box.innerHTML = ps.length ? ps.map(p => `<div class="pchip"><span class="dot ${p.online ? '' : 'off'}"></span><span class="av">${p.avatar}</span><span class="nm">${esc(p.name)}${p.local ? ' <span class="tag">local</span>' : ''}</span><button class="x" data-act="kick" data-id="${p.id}" title="Remover">✕</button></div>`).join('')
+      : `<p class="muted small">Aguardando os alunos escanearem o QR code…</p>`;
+    const b = $('#btn-start'); if (b) b.disabled = !ps.length;
+  } else if (H.phase === 'round') renderGrid();
+  else if (H.phase === 'rank' || H.phase === 'podium') renderRankList(H.phase === 'podium');
+}
+
+/* ----- tela 3: rodada ----- */
+ACT.start = () => {
+  if (!H.players.size) return;
+  H.players.forEach(p => { p.res = {}; });
+  H.ri = -1; H.queue = []; nextRound();
+};
+function nextRound() {
+  H.ri++;
+  if (H.ri >= H.rounds.length) return hostPodium();
+  H.phase = 'round'; H.open = true;
+  hostRound();
+  H.players.forEach(p => sendTo(p, roundMsg(p)));
+}
+ACT.next = () => nextRound();
+function hostRound() {
+  closeModal();
+  const r = H.rounds[H.ri];
+  app.innerHTML = `
+  <section class="panel">
+    <div class="row between wrap-row">
+      <div class="row wrap-row"><span class="pill gold">Rodada ${H.ri + 1}/${H.rounds.length}</span>${langBadge(r.lang)}</div>
+      <div id="round-meta" class="row wrap-row small muted"></div>
+    </div>
+    ${r.character ? charBanner(r.character) : ''}
+    <div class="phrase">“${esc(r.text)}”</div>
+    <div class="row center wrap-row">
+      <button class="btn" data-act="tts">🔊 Ouvir pronúncia</button>
+      ${r.tr ? `<button class="btn ghost" data-act="toggle-tr">👁 Tradução</button>` : ''}
+    </div>
+    ${r.tr ? `<p id="tr" class="tr hidden">${esc(r.tr)}</p>` : ''}
+  </section>
+  <section class="panel">
+    <div class="row between wrap-row"><h3 id="grid-title"></h3><div id="round-actions" class="row wrap-row"></div></div>
+    <div id="grid" class="pgrid"></div>
+    <p class="small muted">Clique num aluno para ouvir a gravação, ver a análise e ajustar a nota.</p>
+  </section>`;
+  renderGrid();
+}
+ACT.tts = () => {
+  const r = IS_STUDENT ? S.round : H.rounds[H.ri]; if (!r) return;
+  const loc = r.lang === 'fr' ? (IS_STUDENT ? 'fr-FR' : H.cfg.frLocale) : (IS_STUDENT ? 'es-ES' : H.cfg.esLocale);
+  speak(r.text, loc);
+};
+function queuePos(p) { const i = H.queue.findIndex(j => j.p === p && j.ri === H.ri); return i < 0 ? 0 : i + 1 + (H.busy ? 1 : 0); }
+function cardHTML(p) {
+  const res = p.res[H.ri];
+  let body;
+  if (!res) {
+    if (!H.open) body = `<span class="st off">— não enviou</span>`;
+    else if (p.local) body = `<button class="btn sm blue" data-act="rec-local" data-id="${p.id}">🎙️ Gravar aqui</button>`;
+    else body = p.online ? `<span class="st">🎙️ gravando…</span>` : `<span class="st off">📴 desconectado</span>`;
+  } else if (res.status === 'fila') body = `<span class="st">⏳ na fila</span>`;
+  else if (res.status === 'avaliando') body = `<span class="st"><i class="spin"></i> avaliando…</span>`;
+  else if (res.status === 'erro') body = res.final != null ? `<div class="score ${scoreCls(res.final)}">${res.final}</div><span class="st">nota manual</span>` : `<span class="st err">⚠️ sem avaliação<br>clique para ouvir e dar nota</span>`;
+  else body = `<div class="score ${scoreCls(res.final)}">${res.final ?? '–'}</div>${res.bonus ? '<span class="bonus">+10 🎭</span>' : ''}`;
+  return `<div class="pcard ${res ? 'has' : ''}" ${res ? `data-act="detail" data-id="${p.id}"` : ''}>
+    <div class="av">${p.avatar}</div><div class="nm">${esc(p.name)}${p.local ? ' <span class="tag">local</span>' : ''}</div>${body}</div>`;
+}
+function renderGrid() {
+  const grid = $('#grid'); if (!grid) return;
+  const ps = [...H.players.values()];
+  grid.innerHTML = ps.map(cardHTML).join('');
+  const sent = ps.filter(p => p.res[H.ri]).length;
+  $('#grid-title').textContent = `Enviaram ${sent} de ${ps.length}`;
+  const pend = H.queue.length + (H.busy ? 1 : 0);
+  $('#round-meta').innerHTML = pend ? `<i class="spin"></i> ${pend} avaliação(ões) na fila` : (sent ? '✅ fila de avaliação vazia' : '');
+  $('#round-actions').innerHTML = H.open
+    ? `<button class="btn danger" data-act="close-rec">⏹ Encerrar gravações</button>`
+    : `<span class="pill">Gravações encerradas</span><button class="btn gold" data-act="show-rank">📊 Ver ranking</button>`;
+}
+ACT['close-rec'] = () => {
+  const ps = [...H.players.values()]; const missing = ps.filter(p => !p.res[H.ri]).length;
+  if (missing && !confirm(`${missing} jogador(es) ainda não enviaram. Encerrar mesmo assim?`)) return;
+  H.open = false; H.players.forEach(p => sendTo(p, { t: 'closed', ri: H.ri })); renderGrid();
+};
+ACT['rec-local'] = el => {
+  const p = H.players.get(el.dataset.id); if (!p || !H.open) return;
+  const r = H.rounds[H.ri];
+  const m = openModal(`
+    <div class="row between"><h3>${p.avatar} ${esc(p.name)} — grave aqui</h3><button class="btn sm ghost" data-act="close-modal">✕</button></div>
+    ${langBadge(r.lang)}
+    <div class="phrase" style="font-size:26px">“${esc(r.text)}”</div>
+    <div id="local-rec"></div>`, () => { if (H.localRec) { H.localRec.destroy(); H.localRec = null; } });
+  H.localRec = mountRecorder(m.querySelector('#local-rec'), {
+    maxSec: 20,
+    onSubmit: (result) => {
+      if (!H.open) { toast('As gravações desta rodada já foram encerradas.', 'err'); return false; }
+      acceptSubmission(p, result.wav); H.localRec = null; closeModal(); return true;
+    }
+  });
+};
+
+/* ----- fila de avaliação (plano gratuito do Azure: 1 avaliação por vez) ----- */
+function acceptSubmission(p, wav) {
+  const res = { status: 'fila', wav, url: URL.createObjectURL(new Blob([wav], { type: 'audio/wav' })), dur: (wav.byteLength - 44) / 32000, ev: null, auto: null, final: null, bonus: false, err: '' };
+  const old = p.res[H.ri]; if (old && old.url) URL.revokeObjectURL(old.url);
+  p.res[H.ri] = res;
+  H.queue.push({ p, ri: H.ri, res });
+  sendTo(p, { t: 'status', ri: H.ri, status: 'fila', pos: queuePos(p) });
+  refreshPlayers();
+  const ps = [...H.players.values()];
+  if (H.open && ps.every(x => x.res[H.ri] || (!x.online && !x.local))) toast('Todos os alunos conectados já enviaram! 🎉', 'ok');
+  pump();
+}
+function notifyQueue() { H.queue.forEach((j, i) => { if (j.ri === H.ri) sendTo(j.p, { t: 'status', ri: j.ri, status: 'fila', pos: i + 1 + (H.busy ? 1 : 0) }); }); }
+async function pump() {
+  if (H.busy) return;
+  H.busy = true;
+  while (H.queue.length) {
+    const job = H.queue.shift(); const { p, ri, res } = job;
+    if (p.res[ri] !== res) continue; // gravação substituída ou removida
+    res.status = 'avaliando';
+    if (ri === H.ri) { sendTo(p, { t: 'status', ri, status: 'avaliando' }); notifyQueue(); }
+    refreshPlayers();
+    try {
+      const r = H.rounds[ri];
+      res.ev = await assessWithRetry(res.wav, r.text, r.lang);
+      res.auto = Math.round(res.ev.pron); if (res.final == null) res.final = res.auto; res.status = 'pronto';
+    } catch (err) {
+      res.status = 'erro'; res.err = err.message || String(err);
+      if (err.kind === 'auth' && !H.authFailed) { H.authFailed = true; toast('❌ O Azure recusou a chave/região. Confira em ⚙️ Azure.', 'err', 8000); }
+      if (err.kind === 'quota') toast('⚠️ O Azure recusou: o limite gratuito do mês pode ter acabado. Dê as notas manualmente.', 'err', 9000);
+    }
+    if (p.res[ri] === res) {
+      const m = resultMsg(res, ri); if (m) sendTo(p, m);
+      if (H.detailId === p.id && ri === H.ri && $('#modal-root .modal')) openDetail(p.id);
+    }
+    refreshPlayers();
+  }
+  H.busy = false; refreshPlayers();
+}
+function resultMsg(res, ri) {
+  if (res.status === 'pronto') return { t: 'result', ri, score: res.final, bonus: res.bonus, adjusted: res.final !== res.auto, ev: res.ev };
+  if (res.status === 'erro') return { t: 'result', ri, error: true, score: res.final, bonus: res.bonus };
+  return null;
+}
+
+/* ----- avaliação no Azure (SDK oficial da Microsoft, roda no navegador) ----- */
+class AssessError extends Error { constructor(kind, msg) { super(msg); this.kind = kind; } }
+async function loadSDK() {
+  try { await loadScript(LIBS.sdk); } catch (e) { throw new AssessError('sdk', 'Não consegui carregar o SDK da Microsoft (verifique a internet).'); }
+  if (!window.SpeechSDK) throw new AssessError('sdk', 'SDK da Microsoft indisponível.');
+  return window.SpeechSDK;
+}
+function parseAssessment(json) {
+  const j = JSON.parse(json); const nb = (j.NBest && j.NBest[0]) || {};
+  const pa = nb.PronunciationAssessment || nb;
+  const words = (nb.Words || []).map(w => { const wp = w.PronunciationAssessment || w; return { w: String(w.Word || ''), s: +wp.AccuracyScore || 0, e: wp.ErrorType || 'None' }; });
+  return { pron: +pa.PronScore || 0, acc: +pa.AccuracyScore || 0, flu: +pa.FluencyScore || 0, comp: +pa.CompletenessScore || 0, text: j.DisplayText || nb.Display || '', words };
+}
+async function assessRaw({ key, region, locale }, wav, refText) {
+  const sdk = await loadSDK();
+  if (!key) throw new AssessError('nokey', 'A chave do Azure não foi configurada. Ouça a gravação e dê a nota manualmente.');
+  const pcm = wav.slice(44);
+  addUsage(pcm.byteLength / 32000 + 0.5);
+  return new Promise((resolve, reject) => {
+    let rec, done = false;
+    const finish = (fn, v) => { if (done) return; done = true; clearTimeout(to); try { rec && rec.close(); } catch (e) {} fn(v); };
+    const to = setTimeout(() => finish(reject, new AssessError('timeout', 'O Azure demorou demais para responder.')), 30000);
+    try {
+      const sc = sdk.SpeechConfig.fromSubscription(key, region);
+      sc.speechRecognitionLanguage = locale;
+      sc.outputFormat = sdk.OutputFormat.Detailed;
+      sc.setProperty(sdk.PropertyId.Speech_SegmentationSilenceTimeoutMs, '1500'); // tolera pausas curtas no meio da frase
+      const push = sdk.AudioInputStream.createPushStream(sdk.AudioStreamFormat.getWaveFormatPCM(16000, 16, 1));
+      push.write(pcm); push.write(new ArrayBuffer(16000)); push.close(); // + 0,5 s de silêncio no fim
+      rec = new sdk.SpeechRecognizer(sc, sdk.AudioConfig.fromStreamInput(push));
+      const pac = new sdk.PronunciationAssessmentConfig(refText, sdk.PronunciationAssessmentGradingSystem.HundredMark, sdk.PronunciationAssessmentGranularity.Phoneme, true);
+      pac.applyTo(rec);
+      const nomatch = () => ({ nomatch: true, pron: 0, acc: 0, flu: 0, comp: 0, text: '', words: refText.split(/\s+/).filter(Boolean).map(w => ({ w, s: 0, e: 'Omission' })) });
+      rec.recognizeOnceAsync(res => {
+        try {
+          if (res.reason === sdk.ResultReason.RecognizedSpeech) finish(resolve, parseAssessment(res.properties.getProperty(sdk.PropertyId.SpeechServiceResponse_JsonResult)));
+          else if (res.reason === sdk.ResultReason.NoMatch) finish(resolve, nomatch());
+          else if (res.reason === sdk.ResultReason.Canceled) {
+            const cd = sdk.CancellationDetails.fromResult(res);
+            if (cd.reason === sdk.CancellationReason.EndOfStream) return finish(resolve, nomatch());
+            const C = sdk.CancellationErrorCode, det = String(cd.errorDetails || '');
+            let e;
+            if (cd.ErrorCode === C.AuthenticationFailure || /401|unauthori[sz]ed|invalid subscription/i.test(det)) e = new AssessError('auth', 'Chave ou região do Azure incorreta.');
+            else if (/quota|403|forbidden/i.test(det) || cd.ErrorCode === C.Forbidden) e = new AssessError('quota', 'O Azure recusou a avaliação (limite gratuito do mês pode ter acabado).');
+            else if (cd.ErrorCode === C.TooManyRequests || /429|too many/i.test(det)) e = new AssessError('busy', 'O Azure está ocupado (muitas requisições).');
+            else if (cd.ErrorCode === C.ConnectionFailure) e = new AssessError('conn', 'Falha de conexão com o Azure (internet ou região incorreta).');
+            else e = new AssessError('service', 'Erro do Azure: ' + (det || 'desconhecido'));
+            finish(reject, e);
+          } else finish(reject, new AssessError('unknown', 'Resposta inesperada do Azure.'));
+        } catch (e) { finish(reject, new AssessError('parse', 'Não consegui ler a resposta do Azure.')); }
+      }, err => finish(reject, new AssessError('sdk', 'Erro no SDK: ' + err)));
+    } catch (e) { finish(reject, new AssessError('sdk', 'Erro ao preparar a avaliação: ' + (e.message || e))); }
+  });
+}
+async function assessWithRetry(wav, refText, lang) {
+  const opts = { key: H.key, region: (H.cfg.region || '').trim().toLowerCase(), locale: lang === 'fr' ? H.cfg.frLocale : H.cfg.esLocale };
+  for (let attempt = 0; ; attempt++) {
+    try { return await assessRaw(opts, wav, refText); }
+    catch (e) {
+      const retry = (e.kind === 'busy' && attempt < 5) || ((e.kind === 'conn' || e.kind === 'timeout') && attempt < 1);
+      if (!retry) throw e;
+      await sleep(1500 + attempt * 1000);
+    }
+  }
+}
+
+/* ----- detalhe de um aluno: ouvir, ver análise, ajustar nota ----- */
+ACT.detail = el => openDetail(el.dataset.id);
+function openDetail(id) {
+  const p = H.players.get(id); const res = p && p.res[H.ri]; if (!res) return;
+  const r = H.rounds[H.ri]; const ev = res.ev;
+  H.detailId = id;
+  const m = openModal(`
+    <div class="row between"><h3>${p.avatar} ${esc(p.name)}</h3><button class="btn sm ghost" data-act="close-modal">✕</button></div>
+    <p class="muted" style="margin-top:0">${langBadge(r.lang)} “${esc(r.text)}”</p>
+    <div class="row wrap-row"><audio controls src="${res.url}"></audio><button class="btn sm" data-act="tts">🔊 Referência</button></div>
+    ${ev ? evalHTML(ev, r.lang) : res.status === 'erro' ? `<div class="err-box" style="margin-top:12px">⚠️ ${esc(res.err)}</div>` : `<p class="muted"><i class="spin"></i> Avaliação em andamento…</p>`}
+    <div class="adjust">
+      <label class="lbl" for="d-final">Nota final (0–100)</label>
+      <div class="row wrap-row"><input id="d-final" type="number" min="0" max="100" inputmode="numeric" value="${res.final ?? ''}" style="max-width:120px">
+        ${r.character ? `<label class="check"><input type="checkbox" id="d-bonus" ${res.bonus ? 'checked' : ''}> 🎭 +10 de bônus pela interpretação</label>` : ''}</div>
+      <p class="small muted" style="margin-bottom:0">${res.auto != null ? `Nota automática do Azure: <b>${res.auto}</b>. ` : ''}A nota automática é uma referência: a sua avaliação vale mais.</p>
+    </div>
+    <div class="row wrap-row" style="justify-content:flex-end">
+      ${res.status === 'erro' ? `<button class="btn sm" data-act="retry" data-id="${p.id}">🔄 Avaliar de novo</button>` : ''}
+      ${H.open ? `<button class="btn sm" data-act="redo" data-id="${p.id}">🔁 Pedir nova gravação</button>` : ''}
+      <button class="btn gold" data-act="close-modal">Pronto</button>
+    </div>`, () => { H.detailId = null; });
+  const fin = m.querySelector('#d-final'), bon = m.querySelector('#d-bonus');
+  const save = () => {
+    const v = fin.value.trim();
+    res.final = v === '' ? null : clamp(Math.round(+v || 0), 0, 100);
+    if (bon) res.bonus = bon.checked;
+    const msg = resultMsg(res, H.ri) || (res.final != null ? { t: 'result', ri: H.ri, error: true, score: res.final, bonus: res.bonus } : null);
+    if (msg) sendTo(p, msg);
+    refreshPlayers();
+  };
+  fin.addEventListener('change', save); if (bon) bon.addEventListener('change', save);
+}
+ACT.retry = el => {
+  const p = H.players.get(el.dataset.id); const res = p && p.res[H.ri]; if (!res) return;
+  res.status = 'fila'; res.err = ''; H.queue.push({ p, ri: H.ri, res }); H.authFailed = false;
+  closeModal(); refreshPlayers(); pump();
+};
+ACT.redo = el => {
+  const p = H.players.get(el.dataset.id); if (!p || !H.open) return;
+  const res = p.res[H.ri]; if (res && res.url) URL.revokeObjectURL(res.url);
+  delete p.res[H.ri]; sendTo(p, { t: 'redo', ri: H.ri });
+  closeModal(); refreshPlayers(); toast(p.local ? 'Grave de novo pelo botão do aluno.' : `Pedido enviado para ${p.name}.`, 'ok');
+};
+
+/* ----- ranking entre rodadas e pódio ----- */
+const pts = res => res ? (res.final || 0) + (res.bonus ? 10 : 0) : 0;
+function ranking() {
+  const list = [...H.players.values()].map(p => ({ p, total: Object.values(p.res).reduce((a, r) => a + pts(r), 0), last: pts(p.res[H.ri]) }));
+  list.sort((a, b) => b.total - a.total || a.p.name.localeCompare(b.p.name));
+  list.forEach((x, i) => { x.pos = i > 0 && x.total === list[i - 1].total ? list[i - 1].pos : i + 1; });
+  return list;
+}
+function rankMsg(p) { const list = ranking(); const me = list.find(x => x.p === p) || { pos: list.length, total: 0, last: 0 }; return { t: 'rank', ri: H.ri, pos: me.pos, n: list.length, total: me.total, last: me.last, isLast: H.ri >= H.rounds.length - 1 }; }
+ACT['show-rank'] = () => hostRank();
+ACT['back-round'] = () => { H.phase = 'round'; hostRound(); };
+function hostRank() {
+  H.phase = 'rank'; closeModal();
+  const last = H.ri >= H.rounds.length - 1;
+  app.innerHTML = `
+  <section class="panel center">
+    <div class="big-emoji">📊</div>
+    <h2>Ranking depois da rodada ${H.ri + 1}</h2>
+    <div id="rank-pend"></div>
+    <div id="rank-list" class="rank"></div>
+    <div class="row center wrap-row">
+      <button class="btn ghost" data-act="back-round">⬅ Voltar à rodada</button>
+      <button class="btn gold big" data-act="next">${last ? '🏆 Resultado final' : '▶ Próxima rodada'}</button>
+    </div>
+  </section>`;
+  renderRankList(false);
+  H.players.forEach(p => sendTo(p, rankMsg(p)));
+}
+function renderRankList(all) {
+  const box = $('#rank-list'); if (!box) return;
+  const list = ranking(); const max = Math.max(1, ...list.map(x => x.total));
+  const shown = all ? list : list.slice(0, 10);
+  box.innerHTML = shown.map(x => `<div class="rk"><div class="bar" data-w="${(x.total / max * 100).toFixed(1)}"></div><span class="pos">${x.pos}º</span><span style="font-size:24px">${x.p.avatar}</span><span class="nm">${esc(x.p.name)}</span>${!all && x.last ? `<span class="dl">+${x.last}</span>` : ''}<span class="pts">${x.total}</span></div>`).join('')
+    + (!all && list.length > shown.length ? `<p class="small muted center">… e mais ${list.length - shown.length} jogador(es).</p>` : '');
+  requestAnimationFrame(() => box.querySelectorAll('.bar').forEach(b => { b.style.width = b.dataset.w + '%'; }));
+  const pend = H.queue.length + (H.busy ? 1 : 0), pe = $('#rank-pend');
+  if (pe) pe.innerHTML = pend ? `<p class="warn small">Ainda há ${pend} avaliação(ões) em andamento; o ranking se atualiza sozinho.</p>` : '';
+}
+function hostPodium() {
+  H.phase = 'podium'; closeModal();
+  const list = ranking();
+  const col = (x, cls) => x ? `<div class="pod ${cls}"><div class="av">${x.p.avatar}</div><div class="nm">${esc(x.p.name)}</div><div class="small muted">${x.total} pts</div><div class="blk">${x.pos}º</div></div>` : '';
+  app.innerHTML = `
+  <section class="panel center">
+    <div class="big-emoji bounce">🏆</div>
+    <h2 style="color:#fcd34d">Classificação final do duelo!</h2>
+    <div class="podium">${col(list[1], 'p2')}${col(list[0], 'p1')}${col(list[2], 'p3')}</div>
+    <div id="rank-list" class="rank"></div>
+    <div class="row center wrap-row">
+      <button class="btn" data-act="csv">📥 Baixar resultados (CSV)</button>
+      <button class="btn" data-act="to-setup">📝 Trocar frases</button>
+      <button class="btn gold" data-act="replay">🔁 Jogar de novo com a turma</button>
+    </div>
+  </section>`;
+  renderRankList(true);
+  H.players.forEach(p => sendTo(p, Object.assign(rankMsg(p), { t: 'end' })));
+  confettiBurst(); beep('win');
+}
+ACT.replay = () => {
+  const b = buildRounds(); if (!b.rounds.length) return hostSetup();
+  H.rounds = b.rounds; H.players.forEach(p => { p.res = {}; }); H.ri = -1;
+  hostLobby();
+};
+ACT.csv = () => {
+  const list = ranking();
+  const cell = v => { let s = String(v ?? ''); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const head = ['Posição', 'Aluno', ...H.rounds.map((r, i) => `R${i + 1} (${r.lang.toUpperCase()})`), 'Total'];
+  const rows = list.map(x => [x.pos + 'º', x.p.name, ...H.rounds.map((_, i) => x.p.res[i] ? pts(x.p.res[i]) : ''), x.total]);
+  const phr = [[], ['Rodada', 'Idioma', 'Frase'], ...H.rounds.map((r, i) => ['R' + (i + 1), LANGS[r.lang].label, r.text])];
+  const csv = '﻿' + [head, ...rows, ...phr].map(r => r.map(cell).join(';')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'franpanol-resultados-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+};
+
+/* ----- configurações do Azure ----- */
+ACT.settings = () => {
+  const c = H.cfg;
+  const m = openModal(`
+    <div class="row between"><h3>⚙️ Configuração do Azure</h3><button class="btn sm ghost" data-act="close-modal">✕</button></div>
+    <p class="small muted" style="margin-top:0">No portal do Azure, abra o seu recurso <b>Speech</b> → <b>Chaves e Ponto de Extremidade</b>. Copie a <b>KEY 1</b> e o <b>Local/Região</b> (ex.: brazilsouth).</p>
+    <label class="lbl" for="s-key">Chave (KEY 1)</label>
+    <div class="row"><input id="s-key" type="password" autocomplete="off" spellcheck="false" value="${esc(H.key)}"><button class="btn sm" data-act="toggle-key" title="Mostrar/ocultar">👁</button></div>
+    <label class="lbl" for="s-region">Região</label>
+    <input id="s-region" list="regions" spellcheck="false" value="${esc(c.region)}" placeholder="ex.: brazilsouth">
+    <datalist id="regions">${REGIONS.map(r => `<option value="${r}">`).join('')}</datalist>
+    <div class="grid2">
+      <div><label class="lbl" for="s-fr">Francês de referência</label><select id="s-fr"><option value="fr-FR">França (fr-FR)</option><option value="fr-CA">Canadá (fr-CA)</option></select></div>
+      <div><label class="lbl" for="s-es">Espanhol de referência</label><select id="s-es"><option value="es-ES">Espanha (es-ES)</option><option value="es-MX">México (es-MX)</option></select></div>
+    </div>
+    <div style="height:12px"></div>
+    <label class="check"><input type="checkbox" id="s-remember" ${H.remember ? 'checked' : ''}> Lembrar a chave neste computador</label>
+    <h3 style="margin-top:20px">🛰️ Retransmissão para celulares (Metered)</h3>
+    <p class="small muted" style="margin-top:0">Para quando algum celular não consegue entrar pelo Wi‑Fi. No painel da Metered, copie o <b>link da API</b> (algo como <code>https://SEUAPP.metered.live/api/v1/turn/credentials?apiKey=…</code>) <b>ou</b> o bloco de código com os servidores (com <code>username</code> e <code>credential</code>) e cole aqui. Pode colar o trecho inteiro.</p>
+    <textarea id="s-relay" style="min-height:90px" spellcheck="false" placeholder="Cole aqui o link da API ou o código da Metered">${H.relay ? (H.relay.t === 'api' ? `https://${esc(H.relay.app)}.metered.live/api/v1/turn/credentials?apiKey=${esc(H.relay.key)}` : esc(JSON.stringify({ urls: H.relay.urls, username: H.relay.username, credential: H.relay.credential }, null, 1))) : ''}</textarea>
+    <div id="s-rtest" style="margin:10px 0"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn sm" data-act="test-relay">🛰️ Testar retransmissão</button></div>
+    <p class="small">📊 Uso estimado neste mês: <b>${usageMin().toFixed(1)} min</b> de ${FREE_MIN} min grátis <span class="muted">(contado só neste navegador; o número oficial fica no portal do Azure)</span></p>
+    <div id="s-test" style="margin:10px 0"></div>
+    <div class="row wrap-row" style="justify-content:flex-end">
+      <button class="btn" data-act="test-key">🔌 Testar conexão</button>
+      <button class="btn gold" data-act="save-settings">💾 Salvar</button>
+    </div>
+    <p class="small muted">🔒 A chave fica guardada só neste navegador e é usada só daqui para o Azure. Nunca coloque a chave dentro do arquivo publicado.</p>`);
+  m.querySelector('#s-fr').value = c.frLocale; m.querySelector('#s-es').value = c.esLocale;
+};
+ACT['toggle-key'] = () => { const i = $('#s-key'); i.type = i.type === 'password' ? 'text' : 'password'; };
+function readSettingsForm() {
+  const rtxt = $('#s-relay').value.trim();
+  return { relayTxt: rtxt, relay: parseRelayInput(rtxt), key: $('#s-key').value.trim(), region: $('#s-region').value.trim().toLowerCase().replace(/\s+/g, ''), frLocale: $('#s-fr').value, esLocale: $('#s-es').value, remember: $('#s-remember').checked };
+}
+ACT['save-settings'] = () => {
+  const f = readSettingsForm();
+  if (f.region && !/^[a-z0-9]+$/.test(f.region)) return toast('A região deve ser algo como "brazilsouth" ou "eastus".', 'err');
+  if (f.relayTxt && !f.relay) return toast('Não reconheci os dados da Metered. Cole o link com "apiKey=" ou o bloco com username e credential (ou deixe vazio).', 'err', 7000);
+  const relayChanged = JSON.stringify(f.relay) !== JSON.stringify(H.relay);
+  H.relay = f.relay; if (H.relay) store.set('fpd_relay2', H.relay); else store.del('fpd_relay2');
+  H.key = f.key; H.remember = f.remember; H.authFailed = false;
+  H.cfg = { region: f.region || 'brazilsouth', frLocale: f.frLocale, esLocale: f.esLocale };
+  store.set('fpd_cfg', H.cfg); store.set('fpd_remember', H.remember);
+  if (H.remember && H.key) store.set('fpd_key', H.key); else store.del('fpd_key');
+  closeModal(); renderHostHeader(); if (H.phase === 'setup') hostSetup();
+  if (relayChanged) renderRoomInfo();
+  toast(relayChanged && H.peer ? 'Configuração salva. Os alunos que ainda não entraram devem escanear o QR code novo.' : 'Configuração salva.', 'ok', 5000);
+};
+ACT['test-relay'] = async () => {
+  const f = readSettingsForm(), box = $('#s-rtest');
+  if (!f.relay) { box.innerHTML = `<div class="err-box">${f.relayTxt ? 'Não reconheci os dados colados. Cole o link com "apiKey=" ou o bloco com username e credential.' : 'Cole primeiro os dados da Metered.'}</div>`; return; }
+  box.innerHTML = `<p class="muted"><i class="spin"></i> Testando (até 10 s)…</p>`;
+  try {
+    const ok = await testRelay(f.relay);
+    box.innerHTML = ok ? `<div class="ok-box">✅ Retransmissão funcionando! Clique em Salvar; o QR code passa a incluir esses dados.</div>`
+      : `<div class="err-box">❌ O servidor não respondeu com uma retransmissão. Confira se copiou o link/código certo da Metered.</div>`;
+  } catch (e) { box.innerHTML = `<div class="err-box">❌ Não consegui falar com a Metered (${esc(e.message || e)}). Confira o link e a API key.</div>`; }
+};
+ACT['test-key'] = async () => {
+  const f = readSettingsForm(), box = $('#s-test');
+  if (!f.key || !f.region) { box.innerHTML = `<div class="err-box">Preencha a chave e a região.</div>`; return; }
+  box.innerHTML = `<p class="muted"><i class="spin"></i> Testando…</p>`;
+  const silence = encodeWav(new Int16Array(16000), 16000); // 1 s de silêncio
+  try {
+    await assessRaw({ key: f.key, region: f.region, locale: f.frLocale }, silence, 'bonjour');
+    box.innerHTML = `<div class="ok-box">✅ Conexão funcionando! A chave e a região estão corretas.</div>`;
+  } catch (e) {
+    box.innerHTML = `<div class="err-box">❌ ${esc(e.message)}</div>`;
+  }
+};
+
+function initHost() {
+  renderHostHeader(); hostSetup();
+  window.addEventListener('beforeunload', e => { if (H.players.size || H.phase !== 'setup') { e.preventDefault(); e.returnValue = ''; } });
+}
+
+/* =====================================================================
+   MODO ALUNO (celular)
+   ===================================================================== */
+/* Identidade do aluno vale só para a sala em que ele entrou: se recarregar a página
+   na mesma sala, volta automaticamente; numa sala nova, começa do zero. */
+const SESSION_TTL = 4 * 3600 * 1000;
+const newCid = () => 'c' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+const randAvatar = () => AVATARS[Math.floor(Math.random() * AVATARS.length)];
+function loadSession(pin) { const x = store.get('fpd_session', null); return x && pin && x.pin === pin && Date.now() - x.t < SESSION_TTL ? x : null; }
+function saveSession() { store.set('fpd_session', { pin: S.pin, name: S.name, avatar: S.avatar, cid: S.cid, relay: S.relay, t: Date.now() }); }
+const S0pin = (params.get('sala') || '').replace(/\D/g, '').slice(0, 6);
+const S0 = loadSession(S0pin);
+const S = {
+  pin: S0pin,
+  cid: S0 ? S0.cid : newCid(),
+  name: S0 ? S0.name : '',
+  avatar: S0 ? S0.avatar : randAvatar(),
+  relay: decodeRelay(params.get('r') || '') || (S0 && validRelay(S0.relay)) || null,
+  peer: null, conn: null, connected: false, everConnected: false, tries: 0, lostTimer: null, connTimer: null,
+  screen: 'join', round: null, sub: null, result: null, rank: null, rec: null, failKind: ''
+};
+function renderConn() {
+  const st = S.screen === 'join' || S.screen === 'fail' ? '' : S.connected ? `<span class="pill on">🟢 conectado</span>` : `<span class="pill off">🟡 reconectando…</span>`;
+  $('#hdr').innerHTML = `${st}${S.name && S.screen !== 'join' ? `<span class="pill">${S.avatar} ${esc(S.name)}</span>` : ''}<button class="btn sm" data-act="mute">${muted ? '🔇' : '🔊'}</button>`;
+}
+function renderStudent() {
+  renderConn();
+  if (S.screen !== 'round' && S.rec) { S.rec.destroy(); S.rec = null; }
+  if (S.screen === 'join') {
+    app.innerHTML = `
+    <section class="panel narrow">
+      <div class="center"><div class="mascot sm">🦜</div><h2>Entrar na sala</h2></div>
+      <label class="lbl" for="j-pin">PIN da sala</label>
+      <input id="j-pin" inputmode="numeric" autocomplete="off" maxlength="6" value="${esc(S.pin)}" placeholder="0000" style="font-size:24px;text-align:center;letter-spacing:6px;font-weight:800">
+      <label class="lbl" for="j-name">Seu apelido</label>
+      <input id="j-name" maxlength="20" autocomplete="nickname" value="${esc(S.name)}" placeholder="Ex.: Ana B.">
+      <label class="lbl">Escolha seu bicho</label>
+      <div class="avgrid">${AVATARS.map(a => `<button class="avbtn ${a === S.avatar ? 'sel' : ''}" data-act="pick-av" data-av="${a}">${a}</button>`).join('')}</div>
+      <div style="height:16px"></div>
+      <button class="btn gold big full" data-act="join">Entrar 🚀</button>
+      <p class="small muted center">Use um apelido — não precisa do nome completo.</p>
+    </section>`;
+    $('#j-name').addEventListener('keydown', e => { if (e.key === 'Enter') ACT.join(); });
+  } else if (S.screen === 'connecting') {
+    app.innerHTML = `<section class="panel narrow center"><div class="big-emoji">📡</div><h3><i class="spin"></i> Conectando à sala ${esc(S.pin)}…</h3><p class="muted">Isso leva alguns segundos.</p></section>`;
+  } else if (S.screen === 'lobby') {
+    app.innerHTML = `<section class="panel narrow center"><div class="big-emoji" style="font-size:80px">${S.avatar}</div><h2>Você está na sala! 🎉</h2><p class="muted">Olhe para a tela do professor. O duelo começa já já…</p><p class="small muted">Dica: deixe o celular com a tela ligada e o som ativado.</p><button class="btn sm ghost" data-act="switch-student">↩️ Não é você? Sair da sala</button></section>`;
+  } else if (S.screen === 'round') studentRound();
+  else if (S.screen === 'rank') {
+    const d = S.rank;
+    app.innerHTML = `<section class="panel narrow center"><div class="big-emoji">📊</div><h2>Você está em ${d.pos}º lugar</h2><p>de ${d.n} jogador(es) · <b style="color:#fcd34d">${d.total} pontos</b></p>${d.last ? `<p class="muted">+${d.last} nesta rodada</p>` : ''}<p class="small muted">${d.isLast ? 'Última rodada! Aguarde o resultado final…' : 'Aguarde a próxima rodada…'}</p></section>`;
+  } else if (S.screen === 'end') {
+    const d = S.rank;
+    app.innerHTML = `<section class="panel narrow center"><div class="big-emoji bounce">${d.pos === 1 ? '🥇' : d.pos === 2 ? '🥈' : d.pos === 3 ? '🥉' : '🏁'}</div><h2>Fim do duelo!</h2><p>Você terminou em <b>${d.pos}º lugar</b> de ${d.n}, com <b style="color:#fcd34d">${d.total} pontos</b>.</p><p class="muted">Merci ! ¡Gracias! 🦜</p><button class="btn sm ghost" data-act="switch-student">↩️ Sair da sala</button></section>`;
+  } else if (S.screen === 'fail') {
+    const msg = {
+      nosala: 'Sala não encontrada. Confira o PIN — ou o professor ainda não abriu a sala.',
+      timeout: 'Não consegui me conectar à sala. A rede Wi‑Fi pode estar bloqueando a conexão: tente pelo 4G, ou peça ao professor para configurar a retransmissão (⚙️) e escaneie o QR code de novo.',
+      kicked: 'O professor removeu você da sala.',
+      nopeer: 'Não consegui carregar os componentes da página. Verifique a internet e recarregue.'
+    }[S.failKind] || 'A conexão caiu.';
+    app.innerHTML = `<section class="panel narrow center"><div class="big-emoji">😕</div><h3>${msg}</h3><button class="btn gold big" data-act="rejoin">Tentar de novo</button></section>`;
+  }
+}
+ACT['pick-av'] = el => { S.avatar = el.dataset.av; document.querySelectorAll('.avbtn').forEach(b => b.classList.toggle('sel', b === el)); };
+ACT.join = () => {
+  const pin = $('#j-pin').value.replace(/\D/g, ''), name = cleanName($('#j-name').value);
+  if (pin.length < 4) return toast('Digite o PIN que aparece na tela do professor.', 'err');
+  if (!name) return toast('Escolha um apelido.', 'err');
+  const prev = loadSession(pin);
+  S.cid = prev && prev.name === name ? prev.cid : newCid(); // mesmo aluno voltando ou aluno novo
+  S.pin = pin; S.name = name; saveSession();
+  try { history.replaceState(null, '', location.pathname + '?sala=' + pin + (S.relay ? '&r=' + encodeRelay(S.relay) : '')); } catch (e) {}
+  S.screen = 'connecting'; S.tries = 0; S.everConnected = false; renderStudent(); studentConnect();
+};
+ACT.rejoin = () => { cleanupPeer(); S.screen = 'join'; renderStudent(); };
+ACT['switch-student'] = () => {
+  if (!confirm('Sair da sala neste celular? (Use para outro aluno entrar com este aparelho.)')) return;
+  try { S.conn && S.conn.open && S.conn.send({ t: 'leave' }); } catch (e) {}
+  setTimeout(cleanupPeer, 300); store.del('fpd_session');
+  S.name = ''; S.avatar = randAvatar(); S.cid = newCid(); S.round = null; S.sub = null; S.result = null;
+  S.screen = 'join'; renderStudent();
+};
+
+function cleanupPeer() {
+  clearTimeout(S.connTimer); clearTimeout(S.lostTimer); S.lostTimer = null;
+  try { S.conn && S.conn.close(); } catch (e) {}
+  try { S.peer && S.peer.destroy(); } catch (e) {}
+  S.peer = null; S.conn = null; S.connected = false;
+}
+async function studentConnect() {
+  cleanupPeer();
+  if (typeof Peer !== 'function') return fail('nopeer');
+  const seq = S.seq = (S.seq || 0) + 1;
+  const opts = await peerOptions(S.relay);
+  if (seq !== S.seq || S.screen === 'fail' || S.screen === 'join') return; // outra tentativa começou
+  const peer = new Peer(undefined, opts); S.peer = peer;
+  S.connTimer = setTimeout(() => { if (!S.connected && S.peer === peer) lost(); }, 15000);
+  peer.on('open', () => {
+    if (S.peer !== peer) return;
+    const conn = peer.connect(PEER_PREFIX + S.pin, { reliable: true });
+    conn.on('open', () => {
+      if (S.peer !== peer) return;
+      clearTimeout(S.connTimer);
+      S.conn = conn; S.connected = true; S.everConnected = true; S.tries = 0;
+      conn.send({ t: 'join', cid: S.cid, name: S.name, avatar: S.avatar });
+      renderConn();
+    });
+    conn.on('data', onHostMsg);
+    conn.on('close', () => { if (S.conn === conn || S.peer === peer) lost(); });
+    conn.on('error', () => { if (S.peer === peer) lost(); });
+  });
+  peer.on('error', err => {
+    if (S.peer !== peer) return;
+    if (err.type === 'peer-unavailable' && !S.everConnected && S.tries >= 1) fail('nosala');
+    else lost();
+  });
+}
+function lost() {
+  if (S.screen === 'fail' || S.lostTimer) return;
+  S.connected = false; renderConn();
+  S.tries++;
+  if (!S.everConnected && S.tries > 3) return fail('timeout');
+  S.lostTimer = setTimeout(() => { S.lostTimer = null; studentConnect(); }, Math.min(8000, 1000 + S.tries * 1200));
+}
+function fail(kind) { cleanupPeer(); S.failKind = kind; S.screen = 'fail'; renderStudent(); }
+document.addEventListener('visibilitychange', () => {
+  if (!IS_STUDENT || document.visibilityState !== 'visible') return;
+  if (['join', 'fail'].includes(S.screen) || S.connected) return;
+  clearTimeout(S.lostTimer); S.lostTimer = null; studentConnect();
+});
+
+function onHostMsg(d) {
+  if (!d || typeof d !== 'object') return;
+  switch (d.t) {
+    case 'welcome':
+      S.name = cleanName(d.name) || S.name; if (AVATARS.includes(d.avatar)) S.avatar = d.avatar; saveSession();
+      if (S.screen === 'connecting' || S.screen === 'join') { S.screen = 'lobby'; renderStudent(); } else renderConn();
+      break;
+    case 'lobby': S.round = null; S.sub = null; S.result = null; S.screen = 'lobby'; renderStudent(); break;
+    case 'round': {
+      const changed = !S.round || S.round.ri !== d.ri;
+      if (changed) { if (S.rec) { S.rec.destroy(); S.rec = null; } if (S.sub && S.sub.url) URL.revokeObjectURL(S.sub.url); S.sub = null; S.result = null; }
+      S.round = d;
+      if (d.submitted && !S.sub) S.sub = { status: 'enviado' };
+      if (!d.submitted && S.sub && !changed) { S.sub = null; S.result = null; }
+      const was = S.screen; S.screen = 'round';
+      if (changed || was !== 'round') { renderStudent(); if (changed) beep('ok'); } else renderRoundBody();
+      break;
+    }
+    case 'closed':
+      if (S.round && S.round.ri === d.ri) { S.round.open = false; if (S.rec) { S.rec.destroy(); S.rec = null; } if (S.screen === 'round') renderRoundBody(); }
+      break;
+    case 'status':
+      if (S.round && S.round.ri === d.ri) { S.sub = Object.assign(S.sub || {}, { status: d.status, pos: d.pos }); if (!S.result && S.screen === 'round') renderRoundBody(); }
+      break;
+    case 'result':
+      if (S.round && S.round.ri === d.ri) {
+        const first = !S.result; S.result = d; S.sub = Object.assign(S.sub || {}, { status: 'pronto' });
+        if (S.screen === 'round') renderRoundBody();
+        if (first && !d.error) { beep((d.score || 0) >= 70 ? 'win' : 'ok'); if ((d.score || 0) >= 85) confettiBurst(); }
+      }
+      break;
+    case 'redo':
+      if (S.round && S.round.ri === d.ri) { S.sub = null; S.result = null; if (S.screen === 'round') renderRoundBody(); toast('O professor pediu para você gravar de novo.'); }
+      break;
+    case 'rank': S.rank = d; S.screen = 'rank'; renderStudent(); break;
+    case 'end': S.rank = d; S.screen = 'end'; renderStudent(); if (d.pos <= 3) confettiBurst(); beep('win'); break;
+    case 'kicked': fail('kicked'); break;
+  }
+}
+function studentRound() {
+  const r = S.round;
+  app.innerHTML = `
+  <section class="panel">
+    <div class="row between wrap-row"><span class="pill gold">Rodada ${r.ri + 1}/${r.total}</span>${langBadge(r.lang)}</div>
+    ${r.character ? charBanner(r.character) : ''}
+    <div class="phrase">“${esc(r.text)}”</div>
+    <div class="row center wrap-row"><button class="btn" data-act="tts">🔊 Ouvir</button>${r.tr ? `<button class="btn ghost" data-act="toggle-tr">👁 Tradução</button>` : ''}</div>
+    ${r.tr ? `<p id="tr" class="tr hidden">${esc(r.tr)}</p>` : ''}
+  </section>
+  <section class="panel" id="s-body"></section>`;
+  renderRoundBody();
+}
+function renderRoundBody() {
+  const el = $('#s-body'); if (!el) return;
+  const r = S.round;
+  if (S.result) {
+    if (S.rec) { S.rec.destroy(); S.rec = null; }
+    const d = S.result, s = d.score;
+    const mine = S.sub && S.sub.url ? `<p class="small muted">Sua gravação:</p><audio controls src="${S.sub.url}"></audio>` : '';
+    if (d.error) {
+      el.innerHTML = `<div class="center"><div class="big-emoji">🧑‍🏫</div>${s != null ? `<div class="score big ${scoreCls(s)}">${s}${d.bonus ? '<small style="font-size:20px"> +10🎭</small>' : ''}</div><p class="muted">Nota dada pelo professor.</p>` : `<h3>O professor vai avaliar a sua gravação</h3>`}${mine}</div>`;
+      return;
+    }
+    const msg = s >= 85 ? 'Excelente! 🌟' : s >= 70 ? 'Muito bom! 👏' : s >= 50 ? 'Quase lá! 💪' : 'Vamos praticar mais! 🎯';
+    el.innerHTML = `<div class="center"><div class="score big ${scoreCls(s)}">${s ?? '–'}${d.bonus ? '<small style="font-size:20px"> +10🎭</small>' : ''}</div><h3>${msg}</h3>${d.adjusted ? '<p class="small muted">Nota ajustada pelo professor.</p>' : ''}</div>
+      ${d.ev ? evalHTML(d.ev, r.lang) : ''}<div class="center" style="margin-top:12px">${mine}</div>`;
+    return;
+  }
+  if (S.sub) {
+    if (S.rec) { S.rec.destroy(); S.rec = null; }
+    const ev = S.sub.status === 'avaliando';
+    el.innerHTML = `<div class="center"><div class="big-emoji">${ev ? '🧠' : '📨'}</div><h3>${ev ? 'Avaliando a sua pronúncia…' : 'Gravação enviada!'}</h3>
+      <p class="muted">${S.sub.status === 'fila' && S.sub.pos > 1 ? `Posição na fila de avaliação: ${S.sub.pos}` : 'O resultado aparece aqui em instantes.'}</p>
+      ${S.sub.url ? `<audio controls src="${S.sub.url}"></audio>` : ''}</div>`;
+    return;
+  }
+  if (!r.open) { if (S.rec) { S.rec.destroy(); S.rec = null; } el.innerHTML = `<div class="center"><div class="big-emoji">⏰</div><h3>Gravações encerradas</h3><p class="muted">Aguarde a próxima rodada.</p></div>`; return; }
+  if (S.rec && S.rec.el.isConnected) return;
+  el.innerHTML = '';
+  if (S.rec) { el.appendChild(S.rec.el); return; }
+  S.rec = mountRecorder(el, {
+    maxSec: 20,
+    onSubmit: (result, url) => {
+      if (!S.connected || !S.conn || !S.conn.open) { toast('Sem conexão com a sala agora. Aguarde reconectar e toque em Enviar de novo.', 'err', 5000); return false; }
+      if (!S.round.open) { toast('As gravações desta rodada já foram encerradas.', 'err'); return false; }
+      try { S.conn.send({ t: 'audio', ri: S.round.ri, wav: result.wav, dur: result.dur }); }
+      catch (e) { toast('Não consegui enviar. Tente de novo.', 'err'); return false; }
+      S.sub = { status: 'enviado', url }; S.rec = null;
+      renderRoundBody(); return true;
+    }
+  });
+}
+function initStudent() {
+  if (S.pin && S.name) { S.screen = 'connecting'; renderStudent(); studentConnect(); }
+  else renderStudent();
+}
+
+/* ---------- início ---------- */
+IS_STUDENT ? initStudent() : initHost();
+</script>
+</body>
+</html>
